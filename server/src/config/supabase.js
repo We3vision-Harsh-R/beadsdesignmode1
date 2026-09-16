@@ -5,7 +5,7 @@ import { HttpError, slugify } from '../utils/helpers.js';
 const { SUPABASE_URL, SUPABASE_SECRET_KEY } = process.env;
 
 if (!SUPABASE_URL || !SUPABASE_SECRET_KEY) {
-  throw new Error('SUPABASE_URL and SUPABASE_SECRET_KEY must be set in server/.env');
+  throw new Error('SUPABASE_URL and SUPABASE_SECRET_KEY are missing. Set them in server/.env (local) or in Hostinger -> Environment variables.');
 }
 
 // Server-side client. The secret key bypasses Row Level Security, so it must never reach the browser.

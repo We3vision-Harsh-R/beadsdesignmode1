@@ -1,16 +1,11 @@
+// No top-level await here: Hostinger starts this file with require(), which cannot load it otherwise.
+// Missing Supabase settings are reported by config/supabase.js when the app loads.
 import './config/env.js';
+import app from './app.js';
 
-const REQUIRED = ['SUPABASE_URL', 'SUPABASE_SECRET_KEY'];
-const missing = REQUIRED.filter((key) => !process.env[key]);
-if (missing.length) {
-  console.error(`Missing ${missing.join(', ')}. Set them in server/.env (local) or in Hostinger hPanel -> Environment variables.`);
-  process.exit(1);
-}
-
-const { default: app } = await import('./app.js');
 const PORT = process.env.PORT || 5000;
 
-const server = app.listen(PORT, () => console.log(`API running on http://localhost:${PORT} (Supabase: ${process.env.SUPABASE_URL})`));
+const server = app.listen(PORT, () => console.log(`API running on port ${PORT} (Supabase: ${process.env.SUPABASE_URL})`));
 
 const shutdown = () => server.close(() => process.exit(0));
 process.on('SIGINT', shutdown);
