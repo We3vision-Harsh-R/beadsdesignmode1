@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { api, STORE_NAME } from '../api';
 import DesignCard from '../components/DesignCard';
 import { Loader } from '../components/Guards';
@@ -22,13 +22,11 @@ function DesignRow({ title, subtitle, link, items }) {
 }
 
 export default function Home() {
-  const navigate = useNavigate();
   const config = useConfig();
   const [latest, setLatest] = useState(null);
   const [free, setFree] = useState(null);
   const [popular, setPopular] = useState(null);
   const [categories, setCategories] = useState([]);
-  const [q, setQ] = useState('');
 
   useEffect(() => {
     api('/designs?limit=8').then((d) => setLatest(d.items)).catch(() => setLatest([]));
@@ -47,16 +45,6 @@ export default function Home() {
           <p className="muted">
             Saree, blouse, lehenga, dress, neck and garment designs from {STORE_NAME}. Pay once, download instantly.
           </p>
-          <form
-            className="hero-search"
-            onSubmit={(e) => {
-              e.preventDefault();
-              navigate(`/designs?q=${encodeURIComponent(q.trim())}`);
-            }}
-          >
-            <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Design ID, e.g. 1001, or name" aria-label="Search designs" />
-            <button className="btn">Search</button>
-          </form>
           <div className="hero-links">
             <Link to="/designs" className="btn btn-lg">Browse designs</Link>
             <Link to="/free-designs" className="btn btn-lg btn-outline">Free designs</Link>
@@ -72,13 +60,6 @@ export default function Home() {
             <circle cx="100" cy="100" r="14" className="core" />
           </svg>
         </div>
-      </section>
-
-      <section className="features">
-        <div><strong>Instant download</strong><span className="muted small">Files ready right after payment</span></div>
-        <div><strong>Machine ready</strong><span className="muted small">Stitch count, size and colours listed</span></div>
-        <div><strong>Download packages</strong><span className="muted small">Save more when you need many designs</span></div>
-        <div><strong>{config.razorpayEnabled ? 'UPI, cards, net banking' : 'Easy UPI payment'}</strong><span className="muted small">Secure checkout</span></div>
       </section>
 
       {topCategories.length > 0 && (
@@ -111,6 +92,13 @@ export default function Home() {
       </section>
 
       {latest?.length === 0 && <p className="muted center">No designs yet. Check back soon!</p>}
+
+      <section className="features section">
+        <div><strong>Instant download</strong><span className="muted small">Files ready right after payment</span></div>
+        <div><strong>Machine ready</strong><span className="muted small">Stitch count, size and colours listed</span></div>
+        <div><strong>Download packages</strong><span className="muted small">Save more when you need many designs</span></div>
+        <div><strong>{config.razorpayEnabled ? 'UPI, cards, net banking' : 'Easy UPI payment'}</strong><span className="muted small">Secure checkout</span></div>
+      </section>
     </>
   );
 }

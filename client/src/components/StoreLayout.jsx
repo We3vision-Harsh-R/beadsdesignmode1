@@ -15,12 +15,32 @@ export default function StoreLayout() {
   const [q, setQ] = useState('');
   const [open, setOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [hideSearch, setHideSearch] = useState(false);
   const menuRef = useRef(null);
 
   useEffect(() => {
     setOpen(false);
     setMenuOpen(false);
+    setHideSearch(false);
   }, [pathname]);
+
+  // On phones, hide the header search bar while scrolling down and bring it
+  // back when scrolling up or near the top, so it doesn't take up space.
+  // Compares each new position against the last one seen, with a threshold
+  // big enough to ignore the small sub-pixel wobble some browsers report
+  // while momentum scrolling settles.
+  useEffect(() => {
+    let lastY = window.scrollY;
+    const onScroll = () => {
+      const y = window.scrollY;
+      if (y < 80) setHideSearch(false);
+      else if (y - lastY > 16) setHideSearch(true);
+      else if (y - lastY < -16) setHideSearch(false);
+      lastY = y;
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   // Close the account dropdown when clicking elsewhere
   useEffect(() => {
@@ -48,7 +68,7 @@ export default function StoreLayout() {
         </div>
       </div>
 
-      <header className="header">
+      <header className={`header ${hideSearch ? 'hide-search' : ''}`}>
         <div className="container header-row">
           <Link to="/" className="brand">
             <span className="brand-mark" aria-hidden="true">
