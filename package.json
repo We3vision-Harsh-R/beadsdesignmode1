@@ -1,0 +1,23 @@
+{
+  "name": "beads-design",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Embroidery design store: React + Express + Supabase",
+  "scripts": {
+    "postinstall": "npm install --prefix server --omit=dev && npm install --prefix client --include=dev",
+    "install-all": "npm install",
+    "dev": "concurrently -n api,web -c magenta,cyan \"npm run dev --prefix server\" \"npm run dev --prefix client\"",
+    "build": "npm run build --prefix client",
+    "start": "node server/src/index.js",
+    "create-admin": "npm run create-admin --prefix server",
+    "seed": "npm run seed --prefix server",
+    "package": "node scripts/package.mjs"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.5"
+  },
+  "main": "server/src/index.js",
+  "engines": {
+    "node": ">=20.12"
+  }
+}

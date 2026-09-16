@@ -1,0 +1,301 @@
+import { useEffect, useRef, useState } from 'react';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import toast from 'react-hot-toast';
+import { api, fileSize, FORMATS, imgUrl, MACHINE_LABELS, num } from '../api';
+import { Loader } from '../components/Guards';
+
+const EMPTY_PART = { name: '', stitches: '', area: '', height: '', width: '', colors: '' };
+
+const EMPTY = {
+  name: '',
+  description: '',
+  category: '',
+  machineType: 'multi-head',
+  price: '',
+  mrp: '',
+  isFree: false,
+  isActive: true,
+  featured: false,
+  tags: '',
+  images: [],
+  files: [],
+  driveUrl: '',
+  formats: ['EMB', 'DST'],
+  parts: [{ ...EMPTY_PART }],
+};
+
+export default function DesignForm() {
+  const { id } = useParams();
+  const isNew = !id;
+  const navigate = useNavigate();
+  const imageRef = useRef(null);
+  const fileRef = useRef(null);
+  const [form, setForm] = useState(isNew ? EMPTY : null);
+  const [code, setCode] = useState(null);
+  const [categories, setCategories] = useState([]);
+  const [uploading, setUploading] = useState('');
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    api('/categories').then(setCategories).catch(() => {});
+    if (!isNew) {
+      api(`/designs/admin/${id}`)
+        .then((d) => {
+          setCode(d.code);
+          setForm({
+            ...EMPTY,
+            ...d,
+            category: d.category || '',
+            mrp: d.mrp || '',
+            price: d.isFree ? '' : d.price,
+            tags: d.tags.join(', '),
+            parts: d.parts.length ? d.parts : [{ ...EMPTY_PART }],
+          });
+        })
+        .catch((e) => {
+          toast.error(e.message);
+          navigate('/admin/designs');
+        });
+    }
+  }, [id, isNew, navigate]);
+
+  if (!form) return <Loader />;
+
+  const set = (k) => (e) => setForm({ ...form, [k]: e.target.type === 'checkbox' ? e.target.checked : e.target.value });
+  const setPart = (i, k, v) => setForm((f) => ({ ...f, parts: f.parts.map((p, j) => (j === i ? { ...p, [k]: v } : p)) }));
+
+  const uploadImages = async (list) => {
+    if (!list?.length) return;
+    const fd = new FormData();
+    [...list].forEach((f) => fd.append('images', f));
+    setUploading('images');
+    try {
+      const { urls } = await api('/upload', { method: 'POST', body: fd });
+      setForm((f) => ({ ...f, images: [...f.images, ...urls] }));
+    } catch (e) {
+      toast.error(e.message);
+    } finally {
+      setUploading('');
+      imageRef.current.value = '';
+    }
+  };
+
+  const uploadFiles = async (list) => {
+    if (!list?.length) return;
+    const fd = new FormData();
+    [...list].forEach((f) => fd.append('files', f));
+    setUploading('files');
+    try {
+      const uploaded = await api('/designs/admin/files', { method: 'POST', body: fd });
+      setForm((f) => ({ ...f, files: [...f.files, ...uploaded] }));
+    } catch (e) {
+      toast.error(e.message);
+    } finally {
+      setUploading('');
+      fileRef.current.value = '';
+    }
+  };
+
+  const moveImage = (i, dir) =>
+    setForm((f) => {
+      const images = [...f.images];
+      const j = i + dir;
+      if (j < 0 || j >= images.length) return f;
+      [images[i], images[j]] = [images[j], images[i]];
+      return { ...f, images };
+    });
+
+  const submit = async (e) => {
+    e.preventDefault();
+    if (!form.files.length && !form.driveUrl.trim() && form.isActive && !confirm('This design has no Google Drive link or files yet, so customers cannot download it. Save anyway?')) return;
+    setSaving(true);
+    try {
+      const body = {
+        name: form.name,
+        description: form.description,
+        category: form.category || null,
+        machineType: form.machineType,
+        price: form.isFree ? 0 : form.price,
+        mrp: form.mrp || 0,
+        isFree: form.isFree,
+        isActive: form.isActive,
+        featured: form.featured,
+        tags: form.tags,
+        images: form.images,
+        files: form.files,
+        driveUrl: form.driveUrl,
+        formats: form.formats,
+        parts: form.parts.filter((p) => p.name || p.stitches || p.height || p.width),
+      };
+      const saved = isNew
+        ? await api('/designs', { method: 'POST', body })
+        : await api(`/designs/${id}`, { method: 'PUT', body });
+      toast.success(isNew ? `Design ${saved.code} added` : 'Design saved');
+      navigate('/admin/designs');
+    } catch (err) {
+      toast.error(err.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const totalStitches = form.parts.reduce((s, p) => s + (Number(p.stitches) || 0), 0);
+
+  return (
+    <>
+      <Link to="/admin/designs" className="muted">← Designs</Link>
+      <h1>{isNew ? 'Upload design' : `Edit design ${code}`}</h1>
+
+      <form className="two-col wide" onSubmit={submit}>
+        <div className="stack">
+          <div className="card form">
+            <label className="field"><span>Design name *</span><input required maxLength={150} value={form.name} onChange={set('name')} placeholder="e.g. Peacock saree pallu" /></label>
+            <label className="field"><span>Description</span><textarea rows={4} value={form.description} onChange={set('description')} placeholder="Fabric, work type, use…" /></label>
+            <label className="field"><span>Search tags (comma separated)</span><input value={form.tags} onChange={set('tags')} placeholder="peacock, zari, bridal" /></label>
+          </div>
+
+          <div className="card form">
+            <h3>Google Drive download link *</h3>
+            <p className="muted small">
+              Paste the Drive link of <strong>this design only</strong> (a file, or a folder with just this design's files).
+              In Drive set sharing to “Anyone with the link”. Customers get this link only after payment is verified.
+            </p>
+            <input type="url" value={form.driveUrl} onChange={set('driveUrl')} placeholder="https://drive.google.com/file/d/…  or  …/drive/folders/…" />
+            <div>
+              <span className="muted small">File types in this link</span>
+              <div className="chips mt-sm">
+                {FORMATS.map((f) => (
+                  <label key={f} className={`chip ${form.formats.includes(f) ? 'active' : ''}`}>
+                    <input
+                      type="checkbox"
+                      hidden
+                      checked={form.formats.includes(f)}
+                      onChange={() => setForm({ ...form, formats: form.formats.includes(f) ? form.formats.filter((x) => x !== f) : [...form.formats, f] })}
+                    />
+                    .{f}
+                  </label>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="card form">
+            <h3>Or upload design files (optional)</h3>
+            <p className="muted small">Upload the machine files customers will download ({FORMATS.join(', ')}). Up to 50 MB each. Customers never see these until they pay.</p>
+            {form.files.length > 0 && (
+              <div className="file-list">
+                {form.files.map((f, i) => (
+                  <div key={f.path} className="file-row">
+                    <span className="fmt">{f.format}</span>
+                    <span className="grow ellipsis">{f.originalName}</span>
+                    <span className="muted small">{fileSize(f.size)}</span>
+                    <button type="button" className="link-btn danger" onClick={() => setForm({ ...form, files: form.files.filter((_, j) => j !== i) })}>Remove</button>
+                  </div>
+                ))}
+              </div>
+            )}
+            <button type="button" className="dropzone" onClick={() => fileRef.current.click()} disabled={Boolean(uploading)}>
+              {uploading === 'files' ? 'Uploading files…' : '+ Add design files (.EMB, .DST, …)'}
+            </button>
+            <input ref={fileRef} type="file" multiple hidden accept={FORMATS.map((f) => `.${f.toLowerCase()}`).join(',')} onChange={(e) => uploadFiles(e.target.files)} />
+          </div>
+
+          <div className="card form">
+            <h3>Preview images</h3>
+            <p className="muted small">Photos of the stitched design or screenshots from your software. The first image is the main one. JPG, PNG or WEBP.</p>
+            <div className="image-grid">
+              {form.images.map((src, i) => (
+                <div key={src + i} className="image-tile">
+                  <img src={imgUrl(src)} alt="" />
+                  {i === 0 && <span className="tag static">Main</span>}
+                  <div className="image-tools">
+                    <button type="button" onClick={() => moveImage(i, -1)} disabled={i === 0} aria-label="Move left">←</button>
+                    <button type="button" onClick={() => moveImage(i, 1)} disabled={i === form.images.length - 1} aria-label="Move right">→</button>
+                    <button type="button" onClick={() => setForm({ ...form, images: form.images.filter((_, j) => j !== i) })} aria-label="Remove">✕</button>
+                  </div>
+                </div>
+              ))}
+              <button type="button" className="image-add" onClick={() => imageRef.current.click()} disabled={Boolean(uploading)}>
+                {uploading === 'images' ? 'Uploading…' : '+ Photo'}
+              </button>
+            </div>
+            <input ref={imageRef} type="file" accept="image/jpeg,image/png,image/webp,image/gif" multiple hidden onChange={(e) => uploadImages(e.target.files)} />
+          </div>
+
+          <div className="card form">
+            <div className="section-head">
+              <h3>Design details</h3>
+              <span className="muted small">Total: {num(totalStitches)} stitches</span>
+            </div>
+            <p className="muted small">One row per part (e.g. border, pallu, butti). Sizes in mm.</p>
+            <div className="parts">
+              <div className="part-row part-head small muted">
+                <span>Name</span><span>Stitches</span><span>Area</span><span>Height</span><span>Width</span><span>Colours</span><span />
+              </div>
+              {form.parts.map((p, i) => (
+                <div key={i} className="part-row">
+                  <input aria-label="Part name" placeholder="border" value={p.name} onChange={(e) => setPart(i, 'name', e.target.value)} />
+                  {['stitches', 'area', 'height', 'width', 'colors'].map((k) => (
+                    <input key={k} aria-label={k} type="number" min="0" inputMode="numeric" value={p[k]} onChange={(e) => setPart(i, k, e.target.value)} />
+                  ))}
+                  <button type="button" className="link-btn danger" aria-label="Remove row" onClick={() => setForm({ ...form, parts: form.parts.filter((_, j) => j !== i) })}>✕</button>
+                </div>
+              ))}
+            </div>
+            <button type="button" className="btn btn-ghost" onClick={() => setForm({ ...form, parts: [...form.parts, { ...EMPTY_PART }] })}>+ Add row</button>
+          </div>
+        </div>
+
+        <div className="stack sticky-side">
+          <div className="card form">
+            <h3>Visibility</h3>
+            <label className="switch-row">
+              <span><strong>Live on store</strong><br /><span className="muted small">Hidden designs are not shown to customers</span></span>
+              <span className="switch"><input type="checkbox" checked={form.isActive} onChange={set('isActive')} /><span /></span>
+            </label>
+            <label className="switch-row">
+              <span><strong>Featured</strong><br /><span className="muted small">Highlight on the home page</span></span>
+              <span className="switch"><input type="checkbox" checked={form.featured} onChange={set('featured')} /><span /></span>
+            </label>
+          </div>
+
+          <div className="card form">
+            <h3>Price</h3>
+            <label className="switch-row">
+              <span><strong>Free design</strong><br /><span className="muted small">Any logged-in customer can download</span></span>
+              <span className="switch"><input type="checkbox" checked={form.isFree} onChange={set('isFree')} /><span /></span>
+            </label>
+            {!form.isFree && (
+              <div className="form-grid">
+                <label className="field"><span>Price (₹) *</span><input type="number" required min="1" step="1" value={form.price} onChange={set('price')} /></label>
+                <label className="field"><span>MRP (₹)</span><input type="number" min="0" step="1" value={form.mrp} onChange={set('mrp')} /></label>
+              </div>
+            )}
+          </div>
+
+          <div className="card form">
+            <h3>Category & machine</h3>
+            <label className="field">
+              <span>Category</span>
+              <select value={form.category} onChange={set('category')}>
+                <option value="">No category</option>
+                {categories.map((c) => <option key={c._id} value={c._id}>{c.name}</option>)}
+              </select>
+            </label>
+            <label className="field">
+              <span>Machine type</span>
+              <select value={form.machineType} onChange={set('machineType')}>
+                {Object.entries(MACHINE_LABELS).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+              </select>
+            </label>
+            <Link to="/admin/categories" className="small">Manage categories</Link>
+          </div>
+
+          <button className="btn btn-lg btn-block" disabled={saving || Boolean(uploading)}>
+            {saving ? 'Saving…' : isNew ? 'Publish design' : 'Save changes'}
+          </button>
+        </div>
+      </form>
+    </>
+  );
+}
