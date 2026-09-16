@@ -43,7 +43,6 @@ export default function Home() {
     <>
       <section className="hero">
         <div>
-          <p className="eyebrow">EMB · DST · PES · JEF · Instant download</p>
           <h1>Computer embroidery designs, ready for your machine.</h1>
           <p className="muted">
             Saree, blouse, lehenga, dress, neck and garment designs from {STORE_NAME}. Pay once, download instantly.
