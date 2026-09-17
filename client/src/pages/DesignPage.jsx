@@ -7,6 +7,8 @@ import { useCart } from '../context/CartContext';
 import { useConfig } from '../context/ConfigContext';
 import DesignCard, { DesignImage, discount, Formats } from '../components/DesignCard';
 import DownloadButtons from '../components/DownloadButtons';
+import ImageZoom from '../components/ImageZoom';
+import Lightbox from '../components/Lightbox';
 import { Loader } from '../components/Guards';
 
 const VIA_TEXT = {
@@ -89,6 +91,7 @@ export default function DesignPage() {
   const [error, setError] = useState('');
   const [access, setAccess] = useState(null);
   const [active, setActive] = useState(0);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
 
   useEffect(() => {
     setData(null);
@@ -131,7 +134,12 @@ export default function DesignPage() {
 
       <div className="product-page">
         <div className="gallery">
-          <DesignImage src={design.images[active]} alt={design.name} className="gallery-main" />
+          <ImageZoom
+            src={design.images[active]}
+            alt={design.name}
+            className="gallery-main"
+            onClick={() => design.images[active] && setLightboxOpen(true)}
+          />
           {design.images.length > 1 && (
             <div className="thumbs">
               {design.images.map((img, i) => (
@@ -186,6 +194,10 @@ export default function DesignPage() {
           </ul>
         </div>
       </div>
+
+      {lightboxOpen && design.images.length > 0 && (
+        <Lightbox images={design.images} index={active} onClose={() => setLightboxOpen(false)} onChange={setActive} />
+      )}
 
       {design.parts.length > 0 && (
         <section className="section">

@@ -255,10 +255,40 @@ hr { border: 0; border-top: 1px solid var(--border); margin: 10px 0; }
 .product-page { display: grid; grid-template-columns: 1.05fr 1fr; gap: 40px; align-items: start; }
 .gallery { position: sticky; top: calc(var(--header-h) + 14px); }
 .gallery-main { border-radius: var(--radius); border: 1px solid var(--border); }
+.zoom-frame { position: relative; overflow: hidden; border-radius: var(--radius); border: 1px solid var(--border); cursor: zoom-in; }
+.zoom-frame .gallery-main { border: 0; border-radius: 0; display: block; will-change: transform; transition: transform 0.15s ease-out; }
+.zoom-frame.zoomed .gallery-main { transform: scale(2.2); transition: transform 0.08s ease-out; }
+.zoom-hint {
+  position: absolute; top: 12px; right: 12px; width: 34px; height: 34px; border-radius: 999px;
+  background: rgba(28, 22, 51, 0.55); color: #fff; display: grid; place-items: center; font-size: 1.05rem;
+  pointer-events: none; opacity: 0; transition: opacity 0.15s;
+}
+.zoom-frame:hover .zoom-hint, .zoom-frame:focus-visible .zoom-hint { opacity: 1; }
 .thumbs { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
 .thumb { width: 72px; padding: 0; border: 2px solid transparent; border-radius: 10px; overflow: hidden; cursor: pointer; background: none; }
 .thumb.active { border-color: var(--primary); }
 .product-info h1 { margin: 12px 0 8px; }
+
+/* Fullscreen image viewer opened by clicking the product photo */
+.lightbox {
+  position: fixed; inset: 0; z-index: 200; display: flex; align-items: center; justify-content: center;
+  padding: 56px 24px; background: rgba(15, 10, 30, 0.92); animation: lightbox-in 0.15s ease-out;
+}
+@keyframes lightbox-in { from { opacity: 0; } to { opacity: 1; } }
+.lightbox-img { max-width: min(90vw, 1000px); max-height: 82vh; width: auto; height: auto; object-fit: contain; border-radius: 12px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5); }
+.lightbox-close, .lightbox-nav {
+  position: absolute; border: 0; border-radius: 999px; background: rgba(255, 255, 255, 0.14); color: #fff;
+  cursor: pointer; display: grid; place-items: center; transition: background 0.15s;
+}
+.lightbox-close:hover, .lightbox-nav:hover { background: rgba(255, 255, 255, 0.26); }
+.lightbox-close { top: 16px; right: 16px; width: 44px; height: 44px; font-size: 1.2rem; }
+.lightbox-nav { top: 50%; transform: translateY(-50%); width: 48px; height: 48px; font-size: 1.8rem; line-height: 1; }
+.lightbox-nav.prev { left: 16px; }
+.lightbox-nav.next { right: 16px; }
+.lightbox-dots { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; }
+.lightbox-dot { width: 8px; height: 8px; padding: 0; border: 0; border-radius: 999px; background: rgba(255, 255, 255, 0.4); cursor: pointer; transition: width 0.15s, background 0.15s; }
+.lightbox-dot.active { width: 20px; background: #fff; }
+
 .specs { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; margin: 16px 0; }
 .specs > div { background: #fff; padding: 10px 14px; }
 .specs > div:last-child:nth-child(odd) { grid-column: 1 / -1; }
@@ -452,6 +482,14 @@ hr { border: 0; border-top: 1px solid var(--border); margin: 10px 0; }
   .brand { font-size: 1.12rem; flex: 1; }
   .brand-mark { width: 32px; height: 32px; }
   .cart-btn { display: none; }
+  .zoom-frame.zoomed .gallery-main { transform: none; }
+  .zoom-hint { display: none; }
+  .lightbox { padding: 16px; }
+  .lightbox-close { width: 38px; height: 38px; top: 10px; right: 10px; font-size: 1.05rem; }
+  .lightbox-nav { width: 40px; height: 40px; font-size: 1.5rem; }
+  .lightbox-nav.prev { left: 6px; }
+  .lightbox-nav.next { right: 6px; }
+  .lightbox-img { max-height: 76vh; }
   .search { order: 5; flex-basis: 100%; max-height: 60px; opacity: 1; overflow: hidden; margin-top: 2px; transition: max-height .25s ease, opacity .2s ease, margin-top .25s ease; }
   .header.hide-search .search { max-height: 0; opacity: 0; margin-top: 0; pointer-events: none; }
   .header.hide-search .header-row { row-gap: 0; }
