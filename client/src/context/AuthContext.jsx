@@ -8,6 +8,7 @@ const AUTH_MESSAGES = {
   'Invalid login credentials': 'Wrong mobile number or password',
   'User already registered': 'This mobile number is already registered. Please log in.',
   'Phone signups are disabled': 'Mobile login is not turned on yet. Please contact the site admin.',
+  'Phone logins are disabled': 'Mobile login is not turned on yet. Please contact the site admin.',
   'Unsupported phone provider': 'Mobile login is not turned on yet. Please contact the site admin.',
 };
 const friendly = (error) => new Error(AUTH_MESSAGES[error.message] || error.message);
