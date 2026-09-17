@@ -12,15 +12,14 @@ router.get('/me', protect, (req, res) => {
   res.json({ user: req.user });
 });
 
+// Mobile number is the login identity (kept in sync with Supabase Auth by a
+// database trigger), so it isn't editable here - only the display name is.
 router.put('/me', protect, async (req, res) => {
-  const { name, phone } = req.body || {};
-  const changes = {};
-  if (name !== undefined) {
-    if (!String(name).trim()) throw new HttpError(400, 'Name is required');
-    changes.name = String(name).trim().slice(0, 80);
-  }
-  if (phone !== undefined) changes.phone = String(phone).trim().slice(0, 20);
-  const profile = await q(db.from('profiles').update(changes).eq('id', req.user._id).select().single());
+  const { name } = req.body || {};
+  if (!String(name ?? '').trim()) throw new HttpError(400, 'Name is required');
+  const profile = await q(
+    db.from('profiles').update({ name: String(name).trim().slice(0, 80) }).eq('id', req.user._id).select().single()
+  );
   res.json({ user: toUser(profile) });
 });
 

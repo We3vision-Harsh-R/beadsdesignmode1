@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
+import { useConfig } from '../context/ConfigContext';
 
 export function safeNext(params) {
   const next = params.get('next') || '/';
@@ -10,9 +11,10 @@ export function safeNext(params) {
 
 export default function Login() {
   const { user, login } = useAuth();
+  const config = useConfig();
   const [params] = useSearchParams();
   const navigate = useNavigate();
-  const [form, setForm] = useState({ email: '', password: '' });
+  const [form, setForm] = useState({ mobile: '', password: '' });
   const [busy, setBusy] = useState(false);
 
   if (user) return <Navigate to={safeNext(params)} replace />;
@@ -21,8 +23,8 @@ export default function Login() {
     e.preventDefault();
     setBusy(true);
     try {
-      const u = await login(form.email, form.password);
-      toast.success(`Welcome back, ${u.name || 'friend'}`);
+      const u = await login(form.mobile, form.password);
+      toast.success(`Welcome back${u.name ? `, ${u.name}` : ''}`);
       navigate(safeNext(params), { replace: true });
     } catch (err) {
       toast.error(err.message);
@@ -35,16 +37,35 @@ export default function Login() {
     <div className="auth">
       <form className="card form" onSubmit={submit}>
         <h1>Login</h1>
-        {params.get('confirmed') && <p className="alert ok-alert">Email confirmed. You can log in now.</p>}
         <label className="field">
-          <span>Email</span>
-          <input type="email" required autoComplete="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
+          <span>Mobile number</span>
+          <input
+            type="tel"
+            required
+            inputMode="numeric"
+            pattern="[6-9][0-9]{9}"
+            maxLength={10}
+            title="10 digit mobile number"
+            autoComplete="tel-national"
+            autoFocus
+            value={form.mobile}
+            onChange={(e) => setForm({ ...form, mobile: e.target.value.replace(/\D/g, '').slice(0, 10) })}
+          />
         </label>
         <label className="field">
           <span>Password</span>
           <input type="password" required autoComplete="current-password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} />
         </label>
-        <Link to="/forgot-password" className="small">Forgot password?</Link>
+        {config.whatsapp && (
+          <a
+            className="small"
+            target="_blank"
+            rel="noreferrer"
+            href={`https://wa.me/${config.whatsapp}?text=${encodeURIComponent('Hi, I forgot my password. My mobile number is: ')}`}
+          >
+            Forgot password? Contact us on WhatsApp
+          </a>
+        )}
         <button className="btn btn-block btn-lg" disabled={busy}>{busy ? 'Logging in…' : 'Login'}</button>
         <p className="muted center">
           New here? <Link to={`/register?next=${encodeURIComponent(safeNext(params))}`}>Create an account</Link>

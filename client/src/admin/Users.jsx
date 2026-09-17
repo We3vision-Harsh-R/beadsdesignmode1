@@ -32,19 +32,19 @@ export default function Users() {
     <>
       <h1>Customers</h1>
       <form className="inline-form" onSubmit={(e) => { e.preventDefault(); load(q.trim()); }}>
-        <input placeholder="Search name, email or phone" value={q} onChange={(e) => setQ(e.target.value)} />
+        <input placeholder="Search name or mobile number" value={q} onChange={(e) => setQ(e.target.value)} />
         <button className="btn btn-ghost">Search</button>
       </form>
 
       {!users ? <Loader /> : (
         <div className="card table-wrap mt">
           <table className="table">
-            <thead><tr><th>Name</th><th>Contact</th><th>Joined</th><th>Paid orders</th><th>Spent</th><th>Designs</th><th>Package</th><th>Role</th><th></th></tr></thead>
+            <thead><tr><th>Name</th><th>Mobile</th><th>Joined</th><th>Paid orders</th><th>Spent</th><th>Designs</th><th>Package</th><th>Role</th><th></th></tr></thead>
             <tbody>
               {users.map((u) => (
                 <tr key={u._id}>
-                  <td><strong>{u.name}</strong></td>
-                  <td>{u.email}<div className="muted small">{u.phone}</div></td>
+                  <td><strong>{u.name || 'Customer'}</strong></td>
+                  <td>{u.phone}</td>
                   <td className="small">{formatDate(u.createdAt)}</td>
                   <td>{u.orders}</td>
                   <td>{money(u.spent)}</td>

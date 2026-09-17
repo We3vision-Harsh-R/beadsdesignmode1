@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext';
 
 export default function Account() {
   const { user, setUser, updatePassword } = useAuth();
-  const [form, setForm] = useState({ name: user.name, phone: user.phone || '' });
+  const [name, setName] = useState(user.name);
   const [password, setPassword] = useState('');
   const [busy, setBusy] = useState('');
 
@@ -13,7 +13,7 @@ export default function Account() {
     e.preventDefault();
     setBusy('profile');
     try {
-      const d = await api('/auth/me', { method: 'PUT', body: form });
+      const d = await api('/auth/me', { method: 'PUT', body: { name } });
       setUser(d.user);
       toast.success('Profile updated');
     } catch (err) {
@@ -41,9 +41,8 @@ export default function Account() {
     <div className="auth stack">
       <form className="card form" onSubmit={saveProfile}>
         <h1>My account</h1>
-        <p className="muted">{user.email}</p>
-        <label className="field"><span>Name</span><input required maxLength={80} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></label>
-        <label className="field"><span>Mobile</span><input inputMode="numeric" maxLength={10} value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} /></label>
+        <p className="muted">📱 {user.phone}</p>
+        <label className="field"><span>Name</span><input required maxLength={80} value={name} onChange={(e) => setName(e.target.value)} /></label>
         <button className="btn btn-block" disabled={Boolean(busy)}>{busy === 'profile' ? 'Saving…' : 'Save changes'}</button>
       </form>
       <form className="card form" onSubmit={savePassword}>

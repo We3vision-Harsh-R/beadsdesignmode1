@@ -59,6 +59,14 @@ export const FORMATS = ['EMB', 'DST', 'PES', 'JEF', 'EXP', 'VP3', 'XXX', 'HUS', 
 
 export const num = (n) => Number(n || 0).toLocaleString('en-IN');
 
+// Validates a 10 digit Indian mobile number and returns the E.164 form
+// Supabase Auth expects ("9876543210" -> "+919876543210"), or null if invalid.
+export function toE164Phone(raw) {
+  const digits = String(raw ?? '').replace(/\D/g, '');
+  const local = digits.startsWith('91') && digits.length === 12 ? digits.slice(2) : digits;
+  return /^[6-9]\d{9}$/.test(local) ? `+91${local}` : null;
+}
+
 export const fileSize = (bytes) =>
   bytes >= 1048576 ? `${(bytes / 1048576).toFixed(1)} MB` : `${Math.max(1, Math.round(bytes / 1024))} KB`;
 

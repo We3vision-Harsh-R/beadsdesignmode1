@@ -1,20 +1,20 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
-import { api } from '../api';
+import { api, toE164Phone } from '../api';
 import { supabase } from '../utils/supabase';
 
 const AuthContext = createContext(null);
 
 const AUTH_MESSAGES = {
-  'Invalid login credentials': 'Wrong email or password',
-  'Email not confirmed': 'Please confirm your email first. Check your inbox for the link.',
-  'User already registered': 'This email is already registered. Please log in.',
+  'Invalid login credentials': 'Wrong mobile number or password',
+  'User already registered': 'This mobile number is already registered. Please log in.',
+  'Phone signups are disabled': 'Mobile login is not turned on yet. Please contact the site admin.',
+  'Unsupported phone provider': 'Mobile login is not turned on yet. Please contact the site admin.',
 };
 const friendly = (error) => new Error(AUTH_MESSAGES[error.message] || error.message);
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [recovery, setRecovery] = useState(false);
   // Bumped on every login/logout so a slow, outdated profile response is ignored
   const version = useRef(0);
   const userIdRef = useRef(null);
@@ -45,7 +45,6 @@ export function AuthProvider({ children }) {
       loadProfile(data.session);
     });
     const { data } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'PASSWORD_RECOVERY') setRecovery(true);
       // SIGNED_IN also fires when the tab regains focus; only reload when the user changes
       const changedUser = (session?.user.id || null) !== userIdRef.current;
       if (event === 'SIGNED_OUT' || event === 'USER_UPDATED' || (event === 'SIGNED_IN' && changedUser)) {
@@ -58,8 +57,10 @@ export function AuthProvider({ children }) {
   }, [loadProfile]);
 
   const login = useCallback(
-    async (email, password) => {
-      const { data, error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
+    async (mobile, password) => {
+      const phone = toE164Phone(mobile);
+      if (!phone) throw new Error('Enter a valid 10 digit mobile number');
+      const { data, error } = await supabase.auth.signInWithPassword({ phone, password });
       if (error) throw friendly(error);
       userIdRef.current = data.session.user.id;
       const profile = await loadProfile(data.session);
@@ -69,26 +70,21 @@ export function AuthProvider({ children }) {
     [loadProfile]
   );
 
-  // Returns { needsConfirmation } when Supabase asks the user to confirm their email
   const register = useCallback(
-    async ({ name, email, phone, password }) => {
-      const { data, error } = await supabase.auth.signUp({
-        email: email.trim(),
-        password,
-        options: {
-          data: { name: name.trim(), phone: phone.trim() },
-          emailRedirectTo: `${window.location.origin}/login?confirmed=1`,
-        },
-      });
+    async (mobile, password) => {
+      const phone = toE164Phone(mobile);
+      if (!phone) throw new Error('Enter a valid 10 digit mobile number');
+      const { data, error } = await supabase.auth.signUp({ phone, password });
       if (error) throw friendly(error);
       if (!data.session) {
-        // An empty identities list means the email is already registered
+        // An empty identities list means the number is already registered
         if (data.user && data.user.identities?.length === 0) throw new Error(AUTH_MESSAGES['User already registered']);
-        return { needsConfirmation: true };
+        throw new Error('Could not create your account. Please try again.');
       }
       userIdRef.current = data.session.user.id;
-      await loadProfile(data.session);
-      return { needsConfirmation: false };
+      const profile = await loadProfile(data.session);
+      if (!profile) throw new Error('Could not load your account. Please try again.');
+      return profile;
     },
     [loadProfile]
   );
@@ -101,23 +97,13 @@ export function AuthProvider({ children }) {
     await supabase.auth.signOut();
   }, []);
 
-  const sendPasswordReset = useCallback(async (email) => {
-    const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
-      redirectTo: `${window.location.origin}/reset-password`,
-    });
-    if (error) throw friendly(error);
-  }, []);
-
   const updatePassword = useCallback(async (password) => {
     const { error } = await supabase.auth.updateUser({ password });
     if (error) throw friendly(error);
-    setRecovery(false);
   }, []);
 
   return (
-    <AuthContext.Provider
-      value={{ user, setUser, loading, recovery, login, register, logout, sendPasswordReset, updatePassword }}
-    >
+    <AuthContext.Provider value={{ user, setUser, loading, login, register, logout, updatePassword }}>
       {children}
     </AuthContext.Provider>
   );

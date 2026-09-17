@@ -8,25 +8,18 @@ export default function Register() {
   const { user, register } = useAuth();
   const [params] = useSearchParams();
   const navigate = useNavigate();
-  const [form, setForm] = useState({ name: '', email: '', phone: '', password: '' });
+  const [form, setForm] = useState({ mobile: '', password: '' });
   const [busy, setBusy] = useState(false);
-  const [sentTo, setSentTo] = useState('');
 
   if (user) return <Navigate to={safeNext(params)} replace />;
-
-  const set = (k) => (e) => setForm({ ...form, [k]: e.target.value });
 
   const submit = async (e) => {
     e.preventDefault();
     setBusy(true);
     try {
-      const { needsConfirmation } = await register(form);
-      if (needsConfirmation) {
-        setSentTo(form.email.trim());
-      } else {
-        toast.success('Account created');
-        navigate(safeNext(params), { replace: true });
-      }
+      await register(form.mobile, form.password);
+      toast.success('Account created');
+      navigate(safeNext(params), { replace: true });
     } catch (err) {
       toast.error(err.message);
     } finally {
@@ -34,27 +27,29 @@ export default function Register() {
     }
   };
 
-  if (sentTo) {
-    return (
-      <div className="auth">
-        <div className="card form center">
-          <h1>Check your email</h1>
-          <p>We sent a confirmation link to <strong>{sentTo}</strong>. Open it to activate your account, then log in.</p>
-          <p className="muted small">Can't find it? Check the spam folder.</p>
-          <Link to="/login" className="btn btn-block">Go to login</Link>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="auth">
       <form className="card form" onSubmit={submit}>
         <h1>Create account</h1>
-        <label className="field"><span>Full name</span><input required maxLength={80} autoComplete="name" value={form.name} onChange={set('name')} /></label>
-        <label className="field"><span>Email</span><input type="email" required autoComplete="email" value={form.email} onChange={set('email')} /></label>
-        <label className="field"><span>Mobile (optional)</span><input inputMode="numeric" maxLength={10} autoComplete="tel-national" value={form.phone} onChange={set('phone')} /></label>
-        <label className="field"><span>Password (min 8 characters)</span><input type="password" required minLength={8} autoComplete="new-password" value={form.password} onChange={set('password')} /></label>
+        <label className="field">
+          <span>Mobile number</span>
+          <input
+            type="tel"
+            required
+            inputMode="numeric"
+            pattern="[6-9][0-9]{9}"
+            maxLength={10}
+            title="10 digit mobile number"
+            autoComplete="tel-national"
+            autoFocus
+            value={form.mobile}
+            onChange={(e) => setForm({ ...form, mobile: e.target.value.replace(/\D/g, '').slice(0, 10) })}
+          />
+        </label>
+        <label className="field">
+          <span>Password (min 8 characters)</span>
+          <input type="password" required minLength={8} autoComplete="new-password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} />
+        </label>
         <button className="btn btn-block btn-lg" disabled={busy}>{busy ? 'Creating…' : 'Create account'}</button>
         <p className="muted center">
           Already have an account? <Link to={`/login?next=${encodeURIComponent(safeNext(params))}`}>Login</Link>

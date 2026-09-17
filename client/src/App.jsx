@@ -15,7 +15,6 @@ import MyDownloads from './pages/MyDownloads';
 import MyOrders from './pages/MyOrders';
 import OrderDetail from './pages/OrderDetail';
 import Account from './pages/Account';
-import { ForgotPassword, ResetPassword } from './pages/PasswordPages';
 import Policies from './pages/Policies';
 import NotFound from './pages/NotFound';
 // Admin pages load only when an admin opens them
@@ -53,8 +52,6 @@ export default function App() {
           <Route path="cart" element={<Cart />} />
           <Route path="login" element={<Login />} />
           <Route path="register" element={<Register />} />
-          <Route path="forgot-password" element={<ForgotPassword />} />
-          <Route path="reset-password" element={<ResetPassword />} />
           <Route path="policies" element={<Policies />} />
           <Route element={<RequireAuth />}>
             <Route path="checkout" element={<Checkout />} />

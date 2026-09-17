@@ -19,7 +19,7 @@ export async function payWithRazorpay({ order, razorpay, user }) {
       order_id: razorpay.orderId,
       name: STORE_NAME,
       description: `Order ${order.orderNumber}`,
-      prefill: { name: user.name, email: user.email, contact: user.phone || '' },
+      prefill: { name: user.name, contact: user.phone || '' },
       theme: { color: '#7a2e4d' },
       handler: async (response) => {
         try {
@@ -153,7 +153,7 @@ export default function Checkout() {
 
         <aside className="card summary">
           <h3>Order summary</h3>
-          <div className="sum-row"><span>Account</span><span className="small">{user.email}</span></div>
+          <div className="sum-row"><span>Account</span><span className="small">{user.phone}</span></div>
           <div className="sum-row total"><span>Total</span><span>{money(amount)}</span></div>
           <button className="btn btn-block btn-lg" disabled={busy || !method} onClick={placeOrder}>
             {busy ? 'Please wait…' : method === 'UPI' ? 'Place order & pay by UPI' : `Pay ${money(amount)}`}

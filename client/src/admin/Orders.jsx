@@ -59,7 +59,7 @@ export default function Orders() {
               {data.items.map((o) => (
                 <tr key={o._id}>
                   <td><Link to={`/admin/orders/${o._id}`}><strong>#{o.orderNumber}</strong></Link><div className="muted small">{formatDate(o.createdAt)}</div></td>
-                  <td>{o.user?.name}<div className="muted small">{o.user?.email}</div></td>
+                  <td>{o.user?.name || "Customer"}<div className="muted small">{o.user?.phone}</div></td>
                   <td className="small">
                     {o.items[0]?.kind === 'package' ? `📦 ${o.items[0].name}` : o.items.map((i) => i.code).join(', ')}
                   </td>
