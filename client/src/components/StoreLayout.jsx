@@ -15,32 +15,14 @@ export default function StoreLayout() {
   const [q, setQ] = useState('');
   const [open, setOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [hideSearch, setHideSearch] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const menuRef = useRef(null);
 
   useEffect(() => {
     setOpen(false);
     setMenuOpen(false);
-    setHideSearch(false);
+    setSearchOpen(false);
   }, [pathname]);
-
-  // On phones, hide the header search bar while scrolling down and bring it
-  // back when scrolling up or near the top, so it doesn't take up space.
-  // Compares each new position against the last one seen, with a threshold
-  // big enough to ignore the small sub-pixel wobble some browsers report
-  // while momentum scrolling settles.
-  useEffect(() => {
-    let lastY = window.scrollY;
-    const onScroll = () => {
-      const y = window.scrollY;
-      if (y < 80) setHideSearch(false);
-      else if (y - lastY > 16) setHideSearch(true);
-      else if (y - lastY < -16) setHideSearch(false);
-      lastY = y;
-    };
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
 
   // Close the account dropdown when clicking elsewhere
   useEffect(() => {
@@ -68,7 +50,7 @@ export default function StoreLayout() {
         </div>
       </div>
 
-      <header className={`header ${hideSearch ? 'hide-search' : ''}`}>
+      <header className={`header ${searchOpen ? 'search-open' : ''}`}>
         <div className="container header-row">
           <Link to="/" className="brand">
             <span className="brand-mark" aria-hidden="true">
@@ -109,6 +91,9 @@ export default function StoreLayout() {
             <CartIcon />
             {count > 0 && <span className="badge">{count}</span>}
           </Link>
+          <button className="icon-btn search-btn" onClick={() => setSearchOpen((o) => !o)} aria-label="Search" aria-expanded={searchOpen}>
+            <SearchIcon />
+          </button>
           <button className="icon-btn menu-btn" onClick={() => setOpen((o) => !o)} aria-label="Menu" aria-expanded={open}>
             <span className={`burger ${open ? 'x' : ''}`}><i /><i /><i /></span>
           </button>
