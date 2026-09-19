@@ -92,7 +92,7 @@ export default function Dashboard() {
               <tbody>
                 {s.topDesigns.map((d) => (
                   <tr key={d._id}>
-                    <td><Link to={`/admin/designs/${d._id}`}>{d.name}</Link><div className="muted small">ID {d.code} · {d.isFree ? 'Free' : money(d.price)}</div></td>
+                    <td><Link to={`/admin/designs/${d._id}`}>{d.name}</Link><div className="muted small">{d.sku} · {d.isFree ? 'Free' : money(d.price)}</div></td>
                     <td className="right">{num(d.downloads)} ⬇</td>
                   </tr>
                 ))}

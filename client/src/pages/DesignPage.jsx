@@ -152,7 +152,7 @@ export default function DesignPage() {
         </div>
 
         <div className="product-info">
-          <span className="id-chip big">Design ID: {design.code}</span>
+          <span className="id-chip big">SKU: {design.sku}</span>
           <h1>{design.name}</h1>
           <div className="price-row big">
             {design.isFree ? (
@@ -186,7 +186,7 @@ export default function DesignPage() {
             {config.whatsapp && (
               <li>
                 Need changes to this design?{' '}
-                <a href={`https://wa.me/${config.whatsapp}?text=${encodeURIComponent(`Hi, I need customisation for design ID ${design.code}`)}`} target="_blank" rel="noreferrer">
+                <a href={`https://wa.me/${config.whatsapp}?text=${encodeURIComponent(`Hi, I need customisation for design ${design.sku}`)}`} target="_blank" rel="noreferrer">
                   Ask on WhatsApp
                 </a>
               </li>

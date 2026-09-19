@@ -41,7 +41,7 @@ export default function DesignCard({ design }) {
       </Link>
       <div className="design-card-body">
         <div className="card-meta">
-          <span className="id-chip">ID {design.code}</span>
+          <span className="id-chip">{design.sku}</span>
           <Formats formats={design.formats} />
         </div>
         <Link to={link} className="design-card-name">{design.name}</Link>
@@ -67,7 +67,7 @@ export default function DesignCard({ design }) {
             onClick={() => {
               if (inCart) return;
               add(design);
-              toast.success(`Design ${design.code} added to cart`);
+              toast.success(`${design.sku} added to cart`);
             }}
           >
             {inCart ? '✓ In cart' : 'Add to cart'}

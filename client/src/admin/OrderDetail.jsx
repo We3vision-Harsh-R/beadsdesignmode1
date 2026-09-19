@@ -45,7 +45,7 @@ export default function AdminOrderDetail() {
         <div>
           <h1>Order #{order.orderNumber}</h1>
           <p className="muted">
-            {formatDate(order.createdAt)} · {order.user?.name || 'Customer'} · {order.user?.phone}
+            {formatDate(order.createdAt)} · {order.user?.name || 'Customer'} · {order.user?.email} · 📱 {order.phone || order.user?.phone}
           </p>
         </div>
         <StatusBadge value={cancelled ? 'cancelled' : order.paymentStatus} />

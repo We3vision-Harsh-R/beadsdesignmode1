@@ -37,11 +37,10 @@ export function pageParams(query, { defaultLimit = 24, maxLimit = 60 } = {}) {
   return { page, limit, from: (page - 1) * limit, to: page * limit - 1 };
 }
 
-// Normalises an Indian mobile number to the E.164 form Supabase Auth expects
-// (e.g. "9876543210" or "+91 98765-43210" -> "+919876543210")
-export function toE164Phone(raw) {
+// Returns the 10 digit Indian mobile number (digits only) or null if it is not valid
+export function cleanMobile(raw) {
   const digits = String(raw ?? '').replace(/\D/g, '');
   const local = digits.startsWith('91') && digits.length === 12 ? digits.slice(2) : digits;
-  if (!/^[6-9]\d{9}$/.test(local)) return null;
-  return `+91${local}`;
+  return /^[6-9]\d{9}$/.test(local) ? local : null;
 }
+

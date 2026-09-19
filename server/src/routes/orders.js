@@ -5,7 +5,7 @@ import { protect, adminOnly } from '../middleware/auth.js';
 import { ownedDesignIds } from '../services/access.js';
 import { markOrderPaid, revokeOrder } from '../services/fulfil.js';
 import { toOrder } from '../utils/mappers.js';
-import { cleanSearch, HttpError, isUuid, pageParams } from '../utils/helpers.js';
+import { cleanMobile, cleanSearch, HttpError, isUuid, pageParams } from '../utils/helpers.js';
 import { getRazorpay } from '../config/razorpay.js';
 import { razorpayCheckout, safeEqual, syncRazorpayOrder } from '../services/razorpayPay.js';
 
@@ -42,6 +42,10 @@ router.post('/', async (req, res) => {
   const { designIds, packageId, paymentMethod } = req.body || {};
   const razorpay = getRazorpay();
 
+  // Mobile number is collected at payment time
+  const phone = cleanMobile(req.body?.phone);
+  if (!phone) throw new HttpError(400, 'Enter a valid 10 digit mobile number');
+
   if (!['RAZORPAY', 'UPI'].includes(paymentMethod)) throw new HttpError(400, 'Choose a payment method');
   if (paymentMethod === 'RAZORPAY' && !razorpay) throw new HttpError(400, 'Online payment is not enabled');
   if (paymentMethod === 'UPI' && !process.env.UPI_ID) throw new HttpError(400, 'UPI payment is not enabled');
@@ -58,7 +62,7 @@ router.post('/', async (req, res) => {
     const ids = [...new Set(designIds.map(String))];
     if (!ids.every(isUuid)) throw new HttpError(400, 'Invalid design in cart');
 
-    const designs = await q(db.from('designs').select('id, code, name, images, price, is_free').in('id', ids).eq('is_active', true));
+    const designs = await q(db.from('designs').select('id, code, sku, name, images, price, is_free').in('id', ids).eq('is_active', true));
     if (designs.length !== ids.length) throw new HttpError(400, 'Some designs in your cart are no longer available');
     const free = designs.find((d) => d.is_free);
     if (free) throw new HttpError(400, `Design ${free.code} is free - download it directly, no need to buy`);
@@ -72,6 +76,7 @@ router.post('/', async (req, res) => {
       refId: d.id,
       name: d.name,
       code: d.code,
+      sku: d.sku,
       image: d.images[0] || '',
       price: Number(d.price), // always the price from the database
     }));
@@ -83,10 +88,12 @@ router.post('/', async (req, res) => {
   const order = await q(
     db
       .from('orders')
-      .insert({ order_number: makeOrderNumber(), user_id: req.user._id, items, total, payment_method: paymentMethod })
+      .insert({ order_number: makeOrderNumber(), user_id: req.user._id, items, total, payment_method: paymentMethod, phone })
       .select()
       .single()
   );
+  // Keep the latest number on the customer's profile too (shown in the admin customer list)
+  await q(db.from('profiles').update({ phone }).eq('id', req.user._id));
 
   if (paymentMethod === 'RAZORPAY') {
     try {

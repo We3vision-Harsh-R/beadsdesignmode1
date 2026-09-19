@@ -26,7 +26,7 @@ export function OrderItems({ order, linkDesigns = true }) {
             ) : (
               <div className="line-name">{it.name}</div>
             )}
-            <div className="muted small">{it.kind === 'design' ? `Design ID ${it.code}` : 'Download package'}</div>
+            <div className="muted small">{it.kind === 'design' ? `SKU ${it.sku || it.code}` : 'Download package'}</div>
           </div>
           <strong>{money(it.price)}</strong>
         </div>

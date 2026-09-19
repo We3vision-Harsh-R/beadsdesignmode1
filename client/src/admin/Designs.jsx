@@ -41,7 +41,7 @@ export default function Designs() {
   };
 
   const remove = async (d) => {
-    if (!confirm(`Delete design ${d.code} "${d.name}" and its files?\nCustomers who bought it will lose access. Tip: switch it off (hide) instead.`)) return;
+    if (!confirm(`Delete design ${d.sku} "${d.name}" and its files?\nCustomers who bought it will lose access. Tip: switch it off (hide) instead.`)) return;
     try {
       await api(`/designs/${d._id}`, { method: 'DELETE' });
       toast.success('Design deleted');
@@ -60,7 +60,7 @@ export default function Designs() {
 
       <div className="toolbar">
         <form onSubmit={(e) => { e.preventDefault(); update('q', search.trim()); }} className="inline-form grow">
-          <input placeholder="Search ID, name or tag" value={search} onChange={(e) => setSearch(e.target.value)} />
+          <input placeholder="Search SKU, name or tag" value={search} onChange={(e) => setSearch(e.target.value)} />
           <button className="btn btn-ghost">Search</button>
         </form>
         <div className="inline-form">
@@ -98,7 +98,7 @@ export default function Designs() {
                   <td><DesignImage src={d.images?.[0]} alt="" className="table-img" /></td>
                   <td>
                     <Link to={`/admin/designs/${d._id}`}><strong>{d.name}</strong></Link>
-                    <div className="muted small">ID {d.code} · {d.category?.name || 'No category'}</div>
+                    <div className="muted small">{d.sku} · {d.category?.name || 'No category'}</div>
                   </td>
                   <td>{d.hasDrive || d.files.length ? (
                       <>{d.hasDrive && <span className="fmt">Drive</span>} <Formats formats={d.formats} /></>

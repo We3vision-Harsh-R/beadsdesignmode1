@@ -26,7 +26,7 @@ export function CartProvider({ children }) {
       setItems((prev) =>
         prev.some((i) => i._id === d._id)
           ? prev
-          : [...prev, { _id: d._id, code: d.code, name: d.name, price: d.price, image: d.images?.[0] || '', formats: d.formats }]
+          : [...prev, { _id: d._id, code: d.code, sku: d.sku, name: d.name, price: d.price, image: d.images?.[0] || '', formats: d.formats }]
       );
     const remove = (id) => setItems((prev) => prev.filter((i) => i._id !== id));
     const clear = () => setItems([]);

@@ -1,19 +1,20 @@
 import { useState } from 'react';
 import toast from 'react-hot-toast';
-import { api } from '../api';
+import { api, cleanMobile } from '../api';
 import { useAuth } from '../context/AuthContext';
 
 export default function Account() {
   const { user, setUser, updatePassword } = useAuth();
-  const [name, setName] = useState(user.name);
+  const [form, setForm] = useState({ name: user.name, phone: user.phone || '' });
   const [password, setPassword] = useState('');
   const [busy, setBusy] = useState('');
 
   const saveProfile = async (e) => {
     e.preventDefault();
+    if (form.phone && !cleanMobile(form.phone)) return toast.error('Enter a valid 10 digit mobile number');
     setBusy('profile');
     try {
-      const d = await api('/auth/me', { method: 'PUT', body: { name } });
+      const d = await api('/auth/me', { method: 'PUT', body: form });
       setUser(d.user);
       toast.success('Profile updated');
     } catch (err) {
@@ -41,8 +42,20 @@ export default function Account() {
     <div className="auth stack">
       <form className="card form" onSubmit={saveProfile}>
         <h1>My account</h1>
-        <p className="muted">📱 {user.phone}</p>
-        <label className="field"><span>Name</span><input required maxLength={80} value={name} onChange={(e) => setName(e.target.value)} /></label>
+        <p className="muted">{user.email}</p>
+        <label className="field"><span>Name</span><input required maxLength={80} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></label>
+        <label className="field">
+          <span>Mobile number</span>
+          <input
+            type="tel"
+            inputMode="numeric"
+            maxLength={10}
+            autoComplete="tel-national"
+            placeholder="10 digit mobile number"
+            value={form.phone}
+            onChange={(e) => setForm({ ...form, phone: e.target.value.replace(/\D/g, '').slice(0, 10) })}
+          />
+        </label>
         <button className="btn btn-block" disabled={Boolean(busy)}>{busy === 'profile' ? 'Saving…' : 'Save changes'}</button>
       </form>
       <form className="card form" onSubmit={savePassword}>

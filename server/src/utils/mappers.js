@@ -13,6 +13,7 @@ export function toDesign(d, { withPaths = false } = {}) {
   return {
     _id: d.id,
     code: d.code,
+    sku: d.sku,
     name: d.name,
     description: d.description,
     // Joined rows give a category object, plain rows give the id (used by the admin form)
@@ -68,6 +69,7 @@ export const toOrder = (o) =>
     user: o.user !== undefined ? toUser(o.user) : o.user_id,
     items: o.items,
     total: num(o.total),
+    phone: o.phone,
     paymentMethod: o.payment_method,
     paymentStatus: o.payment_status,
     status: o.status,

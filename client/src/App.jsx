@@ -15,6 +15,7 @@ import MyDownloads from './pages/MyDownloads';
 import MyOrders from './pages/MyOrders';
 import OrderDetail from './pages/OrderDetail';
 import Account from './pages/Account';
+import { ForgotPassword, ResetPassword } from './pages/PasswordPages';
 import Policies from './pages/Policies';
 import NotFound from './pages/NotFound';
 // Admin pages load only when an admin opens them
@@ -27,6 +28,7 @@ const AdminPackages = lazy(() => import('./admin/Packages'));
 const AdminOrders = lazy(() => import('./admin/Orders'));
 const AdminOrderDetail = lazy(() => import('./admin/OrderDetail'));
 const AdminUsers = lazy(() => import('./admin/Users'));
+const AdminUserDetail = lazy(() => import('./admin/UserDetail'));
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -52,6 +54,8 @@ export default function App() {
           <Route path="cart" element={<Cart />} />
           <Route path="login" element={<Login />} />
           <Route path="register" element={<Register />} />
+          <Route path="forgot-password" element={<ForgotPassword />} />
+          <Route path="reset-password" element={<ResetPassword />} />
           <Route path="policies" element={<Policies />} />
           <Route element={<RequireAuth />}>
             <Route path="checkout" element={<Checkout />} />
@@ -74,6 +78,7 @@ export default function App() {
             <Route path="orders" element={<AdminOrders />} />
             <Route path="orders/:id" element={<AdminOrderDetail />} />
             <Route path="users" element={<AdminUsers />} />
+            <Route path="users/:id" element={<AdminUserDetail />} />
           </Route>
         </Route>
       </Routes>

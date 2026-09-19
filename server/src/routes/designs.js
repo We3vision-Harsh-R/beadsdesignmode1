@@ -34,7 +34,7 @@ async function listDesigns(query, { includeHidden = false } = {}) {
 
   const term = cleanSearch(query.q);
   if (term) {
-    const filters = [`name.ilike."%${term}%"`, `tags.cs.{"${term.toLowerCase()}"}`];
+    const filters = [`name.ilike."%${term}%"`, `sku.ilike."%${term}%"`, `tags.cs.{"${term.toLowerCase()}"}`];
     if (/^\d{1,9}$/.test(term)) filters.push(`code.eq.${term}`);
     req = req.or(filters.join(','));
   }

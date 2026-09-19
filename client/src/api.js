@@ -59,12 +59,11 @@ export const FORMATS = ['EMB', 'DST', 'PES', 'JEF', 'EXP', 'VP3', 'XXX', 'HUS', 
 
 export const num = (n) => Number(n || 0).toLocaleString('en-IN');
 
-// Validates a 10 digit Indian mobile number and returns the E.164 form
-// Supabase Auth expects ("9876543210" -> "+919876543210"), or null if invalid.
-export function toE164Phone(raw) {
+// Returns the 10 digit Indian mobile number (digits only) or null if it is not valid
+export function cleanMobile(raw) {
   const digits = String(raw ?? '').replace(/\D/g, '');
   const local = digits.startsWith('91') && digits.length === 12 ? digits.slice(2) : digits;
-  return /^[6-9]\d{9}$/.test(local) ? `+91${local}` : null;
+  return /^[6-9]\d{9}$/.test(local) ? local : null;
 }
 
 export const fileSize = (bytes) =>
@@ -81,6 +80,25 @@ export async function downloadFile(path) {
   document.body.appendChild(a);
   a.click();
   a.remove();
+}
+
+// Downloads a CSV export from the admin API (needs the login token, so a plain link won't work)
+export async function downloadCsv(path) {
+  const token = await getToken();
+  const res = await fetch(`${BASE}/api${path}`, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data.message || 'Export failed');
+  }
+  const name = /filename="?([^";]+)"?/i.exec(res.headers.get('Content-Disposition') || '')?.[1] || 'export.csv';
+  const url = URL.createObjectURL(await res.blob());
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = name;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
 }
 
 export function loadScript(src) {

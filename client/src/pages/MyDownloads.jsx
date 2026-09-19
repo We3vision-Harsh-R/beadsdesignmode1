@@ -27,7 +27,7 @@ export default function MyDownloads() {
   const active = subs.filter((s) => s.status === 'active');
   const needle = q.trim().toLowerCase();
   const shown = needle
-    ? library.filter(({ design }) => String(design.code).includes(needle) || design.name.toLowerCase().includes(needle))
+    ? library.filter(({ design }) => String(design.code).includes(needle) || design.sku.toLowerCase().includes(needle) || design.name.toLowerCase().includes(needle))
     : library;
 
   return (
@@ -67,7 +67,7 @@ export default function MyDownloads() {
       <div className="section-head mt">
         <h2>Your designs ({library.length})</h2>
         {library.length > 6 && (
-          <input className="narrow" placeholder="Search ID or name" value={q} onChange={(e) => setQ(e.target.value)} />
+          <input className="narrow" placeholder="Search SKU or name" value={q} onChange={(e) => setQ(e.target.value)} />
         )}
       </div>
 
@@ -89,7 +89,7 @@ export default function MyDownloads() {
               <div className="line-body">
                 <Link to={`/design/${design.code}`} className="line-name">{design.name}</Link>
                 <div className="card-meta">
-                  <span className="id-chip">ID {design.code}</span>
+                  <span className="id-chip">{design.sku}</span>
                   <Formats formats={design.formats} />
                   <span className="muted small">{VIA[via]} · {formatDate(date)}</span>
                 </div>

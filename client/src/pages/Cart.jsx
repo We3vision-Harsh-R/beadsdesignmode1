@@ -27,7 +27,7 @@ export default function Cart() {
               <div className="line-body">
                 <Link to={`/design/${i.code}`} className="line-name">{i.name}</Link>
                 <div className="card-meta">
-                  <span className="id-chip">ID {i.code}</span>
+                  <span className="id-chip">{i.sku || i.code}</span>
                   <Formats formats={i.formats} />
                 </div>
                 <button className="link-btn danger" onClick={() => remove(i._id)}>Remove</button>

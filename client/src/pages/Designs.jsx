@@ -76,8 +76,8 @@ export default function Designs({ free = false }) {
               update('q', search.trim());
             }}
           >
-            <span>Design ID or name</span>
-            <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="e.g. 1001" />
+            <span>SKU or name</span>
+            <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="e.g. BDA0001" />
           </form>
           {select('category', 'Category', categories.map((c) => [c.slug, `${c.name} (${c.count})`]))}
           {select('machine', 'Machine', Object.entries(MACHINE_LABELS))}
@@ -94,7 +94,7 @@ export default function Designs({ free = false }) {
 
         <div>
           <div className="toolbar">
-            <span className="muted small">{free ? 'Log in to download free designs.' : 'Tip: search by design ID for exact results.'}</span>
+            <span className="muted small">{free ? 'Log in to download free designs.' : 'Tip: search by SKU (e.g. BDA0001) for exact results.'}</span>
             <select value={get('sort') || 'newest'} onChange={(e) => update('sort', e.target.value)} aria-label="Sort">
               <option value="newest">Newest first</option>
               <option value="popular">Most downloaded</option>

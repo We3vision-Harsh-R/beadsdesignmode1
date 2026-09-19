@@ -79,7 +79,7 @@ export default function StoreLayout() {
 
           <form className="search" onSubmit={search} role="search">
             <SearchIcon />
-            <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search design ID or name" aria-label="Search designs" />
+            <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search SKU or name" aria-label="Search designs" />
           </form>
 
           <nav className={`nav ${open ? 'open' : ''}`}>

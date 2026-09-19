@@ -32,7 +32,7 @@ export default function AdminLayout() {
           <Link to="/" target="_blank">View store ↗</Link>
           <button className="link-btn" onClick={logout}>Logout</button>
         </nav>
-        <div className="sidebar-foot small">{STORE_NAME}<br />{user?.phone}</div>
+        <div className="sidebar-foot small">{STORE_NAME}<br />{user?.email}</div>
       </aside>
       <main className="admin-main">
         <Outlet />

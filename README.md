@@ -11,7 +11,7 @@ Browser (React)  ──login / sign up──▶  Supabase Auth
       └──API calls with the Supabase login token──▶  Express server  ──secret key──▶  Supabase Postgres + Storage
 ```
 
-- **Supabase Auth** handles sign up (with email confirmation), login and password reset.
+- **Supabase Auth** handles sign up, login (email + password) and password reset. The **Email provider must be ON** in Supabase (Authentication → Sign In / Providers → Email).
 - **Express** checks the login token, applies all business rules (prices, payments, download access) and talks to Supabase with the secret key.
 - **Database tables** have Row Level Security on and no public policies, so the public key in the browser cannot read store data directly.
 - **Storage:** design files are in the private bucket `design-files` and are only given out as 60-second signed links after an access check. Preview photos are in the public bucket `design-images`.
@@ -29,15 +29,17 @@ Browser (React)  ──login / sign up──▶  Supabase Auth
 ## What the admin gets (`/admin`)
 
 - Dashboard: revenue, 30-day chart, UPI payments to review, downloads, top designs
-- Designs: upload files and photos, details table, price/free, live/hidden, featured. IDs are automatic (1001, 1002, …)
+- Designs: upload files and photos, details table, price/free, live/hidden, featured. Every design gets an automatic **SKU**: BDA0001 … BDA9999, then BDB0001 … up to BDZ9999 (generated in the database, unique, never reused, cannot be edited)
 - Orders: approve UPI payments, mark failed, refund (removes access), notes
-- Packages, categories, customers
+- Customers: name, mobile number (asked at payment time and saved as plain text), email, orders and spend. Click a customer to see every design/package they bought. **Export customers (CSV)** and **Export purchases (CSV)** buttons for Excel
+- Packages, categories
 
 ## Database (Supabase project `nlsyxkpsrbmllzggpesu`)
 
 | Table | Holds |
 | --- | --- |
-| `profiles` | One row per login: name, email, phone, role (`user` / `admin`). Created automatically on sign up |
+| `profiles` | One row per login: name, email, phone (mobile), role (`user` / `admin`). Created automatically on sign up |
+| `counters` | Hands out the next SKU number (`next_sku()`) |
 | `categories` | Design categories |
 | `designs` | Designs, their files (JSON) and details table (JSON) |
 | `packages` | Download packages for sale |

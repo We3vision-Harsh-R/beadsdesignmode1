@@ -27,6 +27,8 @@ const PG_ERRORS = {
 };
 
 export function dbError(error) {
+  // Errors raised on purpose by our own database functions (e.g. "SKU limit reached")
+  if (error.code === 'P0001') return new HttpError(400, error.message);
   const known = PG_ERRORS[error.code];
   if (known) return new HttpError(known[0], known[1]);
   const err = new HttpError(500, error.message || 'Database error');

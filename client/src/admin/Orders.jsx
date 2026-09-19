@@ -45,7 +45,7 @@ export default function Orders() {
         ))}
       </div>
       <form className="inline-form mt" onSubmit={(e) => { e.preventDefault(); update('q', search.trim()); }}>
-        <input placeholder="Order no., UTR, design ID or name" value={search} onChange={(e) => setSearch(e.target.value)} />
+        <input placeholder="Order no., UTR, SKU or name" value={search} onChange={(e) => setSearch(e.target.value)} />
         <button className="btn btn-ghost">Search</button>
       </form>
 
@@ -59,9 +59,9 @@ export default function Orders() {
               {data.items.map((o) => (
                 <tr key={o._id}>
                   <td><Link to={`/admin/orders/${o._id}`}><strong>#{o.orderNumber}</strong></Link><div className="muted small">{formatDate(o.createdAt)}</div></td>
-                  <td>{o.user?.name || "Customer"}<div className="muted small">{o.user?.phone}</div></td>
+                  <td>{o.user?.name || "Customer"}<div className="muted small">{o.phone || o.user?.phone}</div><div className="muted small">{o.user?.email}</div></td>
                   <td className="small">
-                    {o.items[0]?.kind === 'package' ? `📦 ${o.items[0].name}` : o.items.map((i) => i.code).join(', ')}
+                    {o.items[0]?.kind === 'package' ? `📦 ${o.items[0].name}` : o.items.map((i) => i.sku || i.code).join(', ')}
                   </td>
                   <td><strong>{money(o.total)}</strong></td>
                   <td>{o.paymentMethod}{o.upiRef && <div className="muted small mono">{o.upiRef}</div>}</td>

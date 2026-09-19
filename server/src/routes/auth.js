@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { db, q } from '../config/supabase.js';
 import { protect } from '../middleware/auth.js';
 import { toUser } from '../utils/mappers.js';
-import { HttpError } from '../utils/helpers.js';
+import { cleanMobile, HttpError } from '../utils/helpers.js';
 
 // Sign up, login and passwords are handled by Supabase Auth in the browser.
 // These routes only read and update the customer's profile.
@@ -12,14 +12,17 @@ router.get('/me', protect, (req, res) => {
   res.json({ user: req.user });
 });
 
-// Mobile number is the login identity (kept in sync with Supabase Auth by a
-// database trigger), so it isn't editable here - only the display name is.
 router.put('/me', protect, async (req, res) => {
-  const { name } = req.body || {};
-  if (!String(name ?? '').trim()) throw new HttpError(400, 'Name is required');
-  const profile = await q(
-    db.from('profiles').update({ name: String(name).trim().slice(0, 80) }).eq('id', req.user._id).select().single()
-  );
+  const { name, phone } = req.body || {};
+  const changes = {};
+  if (name !== undefined) changes.name = String(name).trim().slice(0, 80);
+  if (phone !== undefined && String(phone).trim() !== '') {
+    const mobile = cleanMobile(phone);
+    if (!mobile) throw new HttpError(400, 'Enter a valid 10 digit mobile number');
+    changes.phone = mobile;
+  }
+  if (!Object.keys(changes).length) throw new HttpError(400, 'Nothing to update');
+  const profile = await q(db.from('profiles').update(changes).eq('id', req.user._id).select().single());
   res.json({ user: toUser(profile) });
 });
 

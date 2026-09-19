@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { api, loadScript, money, STORE_NAME } from '../api';
+import { api, cleanMobile, loadScript, money, STORE_NAME } from '../api';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { useConfig } from '../context/ConfigContext';
@@ -19,7 +19,7 @@ export async function payWithRazorpay({ order, razorpay, user }) {
       order_id: razorpay.orderId,
       name: STORE_NAME,
       description: `Order ${order.orderNumber}`,
-      prefill: { name: user.name, contact: user.phone || '' },
+      prefill: { name: user.name, email: user.email, contact: order.phone || user.phone || '' },
       theme: { color: '#7a2e4d' },
       handler: async (response) => {
         try {
@@ -47,6 +47,7 @@ export default function Checkout() {
   const [pkg, setPkg] = useState(null);
   const [method, setMethod] = useState('');
   const [busy, setBusy] = useState(false);
+  const [mobile, setMobile] = useState(user.phone || '');
 
   useEffect(() => {
     if (packageId) {
@@ -82,11 +83,13 @@ export default function Checkout() {
   const noPayment = !config.razorpayEnabled && !config.upiId;
 
   const placeOrder = async () => {
+    const phone = cleanMobile(mobile);
+    if (!phone) return toast.error('Enter a valid 10 digit mobile number');
     setBusy(true);
     try {
       const body = packageId
-        ? { packageId, paymentMethod: method }
-        : { designIds: items.map((i) => i._id), paymentMethod: method };
+        ? { packageId, paymentMethod: method, phone }
+        : { designIds: items.map((i) => i._id), paymentMethod: method, phone };
       const { order, razorpay } = await api('/orders', { method: 'POST', body });
       if (!packageId) clear();
       if (razorpay) {
@@ -125,12 +128,31 @@ export default function Checkout() {
                   <DesignImage src={i.image} alt={i.name} className="line-img" />
                   <div className="line-body">
                     <div className="line-name">{i.name}</div>
-                    <div className="muted small">Design ID {i.code}</div>
+                    <div className="muted small">SKU {i.sku || i.code}</div>
                   </div>
                   <strong>{money(i.price)}</strong>
                 </div>
               ))
             )}
+          </div>
+
+          <div className="card form">
+            <h3>Your mobile number</h3>
+            <label className="field">
+              <span>Mobile number *</span>
+              <input
+                type="tel"
+                inputMode="numeric"
+                pattern="[6-9][0-9]{9}"
+                maxLength={10}
+                title="10 digit mobile number"
+                autoComplete="tel-national"
+                placeholder="10 digit mobile number"
+                value={mobile}
+                onChange={(e) => setMobile(e.target.value.replace(/\D/g, '').slice(0, 10))}
+              />
+            </label>
+            <p className="muted small">We use this to contact you about your order and support.</p>
           </div>
 
           <div className="card form">
@@ -153,9 +175,9 @@ export default function Checkout() {
 
         <aside className="card summary">
           <h3>Order summary</h3>
-          <div className="sum-row"><span>Account</span><span className="small">{user.phone}</span></div>
+          <div className="sum-row"><span>Account</span><span className="small">{user.email}</span></div>
           <div className="sum-row total"><span>Total</span><span>{money(amount)}</span></div>
-          <button className="btn btn-block btn-lg" disabled={busy || !method} onClick={placeOrder}>
+          <button className="btn btn-block btn-lg" disabled={busy || !method || !cleanMobile(mobile)} onClick={placeOrder}>
             {busy ? 'Please wait…' : method === 'UPI' ? 'Place order & pay by UPI' : `Pay ${money(amount)}`}
           </button>
           <p className="muted small mt">
