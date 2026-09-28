@@ -75,6 +75,19 @@ export default function Categories() {
     }
   };
 
+  const removePhoto = async (c) => {
+    setUploadingId(c._id);
+    try {
+      await api(`/categories/${c._id}`, { method: 'PUT', body: { image: '' } });
+      toast.success('Photo removed');
+      load();
+    } catch (err) {
+      toast.error(err.message);
+    } finally {
+      setUploadingId(null);
+    }
+  };
+
   return (
     <>
       <h1>Categories</h1>
@@ -92,9 +105,14 @@ export default function Categories() {
               {list.map((c) => (
                 <tr key={c._id}>
                   <td>
-                    <button type="button" className="cat-photo-btn" onClick={() => pickPhoto(c)} disabled={uploadingId === c._id}>
-                      {uploadingId === c._id ? '…' : c.image ? <img src={imgUrl(c.image)} alt="" /> : '+ Photo'}
-                    </button>
+                    <span className="cat-photo-wrap">
+                      <button type="button" className="cat-photo-btn" onClick={() => pickPhoto(c)} disabled={uploadingId === c._id}>
+                        {uploadingId === c._id ? '…' : c.image ? <img src={imgUrl(c.image)} alt="" /> : '+ Photo'}
+                      </button>
+                      {c.image && (
+                        <button type="button" className="cat-photo-remove" aria-label="Remove photo" onClick={() => removePhoto(c)} disabled={uploadingId === c._id}>✕</button>
+                      )}
+                    </span>
                   </td>
                   <td>
                     {editing?._id === c._id ? (

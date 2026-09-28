@@ -21,7 +21,9 @@ export default function AdminLayout() {
       <aside className={`sidebar ${open ? 'open' : ''}`}>
         <div className="sidebar-head">
           <Link to="/admin" className="brand"><span className="brand-dot" /> Admin</Link>
-          <button className="menu-btn" onClick={() => setOpen((o) => !o)} aria-label="Menu" aria-expanded={open}>☰</button>
+          <button className="menu-btn" onClick={() => setOpen((o) => !o)} aria-label="Menu" aria-expanded={open}>
+            <span className={`burger ${open ? 'x' : ''}`}><i /><i /><i /></span>
+          </button>
         </div>
         <nav onClick={() => setOpen(false)}>
           {LINKS.map(([to, label, end]) => (
