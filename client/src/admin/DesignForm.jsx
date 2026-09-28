@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { api, fileSize, FORMATS, imgUrl, MACHINE_LABELS, num } from '../api';
+import { api, fileSize, FORMATS, imgUrl, num } from '../api';
 import { Loader } from '../components/Guards';
 
 const EMPTY_PART = { name: '', stitches: '', area: '', height: '', width: '', colors: '' };
@@ -279,18 +279,12 @@ export default function DesignForm() {
           </div>
 
           <div className="card form">
-            <h3>Category & machine</h3>
+            <h3>Category</h3>
             <label className="field">
               <span>Category</span>
               <select value={form.category} onChange={set('category')}>
                 <option value="">No category</option>
                 {categories.map((c) => <option key={c._id} value={c._id}>{c.name}</option>)}
-              </select>
-            </label>
-            <label className="field">
-              <span>Machine type</span>
-              <select value={form.machineType} onChange={set('machineType')}>
-                {Object.entries(MACHINE_LABELS).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
               </select>
             </label>
             <Link to="/admin/categories" className="small">Manage categories</Link>
