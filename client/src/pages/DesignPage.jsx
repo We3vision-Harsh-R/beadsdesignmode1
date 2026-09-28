@@ -205,7 +205,7 @@ export default function DesignPage() {
           <div className="card table-wrap">
             <table className="table">
               <thead>
-                <tr><th>Name</th><th>Stitches</th><th>Area</th><th>Height</th><th>Width</th><th>Colours</th></tr>
+                <tr><th>Name</th><th>Stitches</th><th>Area</th><th>Colours</th></tr>
               </thead>
               <tbody>
                 {design.parts.map((p, i) => (
@@ -213,8 +213,6 @@ export default function DesignPage() {
                     <td>{p.name || `Part ${i + 1}`}</td>
                     <td>{num(p.stitches)}</td>
                     <td>{p.area ? `${p.area} mm` : '—'}</td>
-                    <td>{p.height ? `${p.height} mm` : '—'}</td>
-                    <td>{p.width ? `${p.width} mm` : '—'}</td>
                     <td>{p.colors || '—'}</td>
                   </tr>
                 ))}

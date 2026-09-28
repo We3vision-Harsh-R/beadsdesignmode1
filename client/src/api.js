@@ -55,7 +55,7 @@ export const STITCH_RANGES = [
   ['200000-100000000', 'Above 2,00,000'],
 ];
 
-export const FORMATS = ['EMB', 'DST', 'PES', 'JEF', 'EXP', 'VP3', 'XXX', 'HUS', 'VIP', 'SEW', 'PXF', 'ZIP'];
+export const FORMATS = ['DHP', 'ZIP', 'RAR'];
 
 export const num = (n) => Number(n || 0).toLocaleString('en-IN');
 

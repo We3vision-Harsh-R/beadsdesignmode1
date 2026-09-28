@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { api, FORMATS, MACHINE_LABELS, STITCH_RANGES } from '../api';
+import { api } from '../api';
 import DesignCard from '../components/DesignCard';
 import Pagination from '../components/Pagination';
 import { Loader } from '../components/Guards';
 
-const FILTER_KEYS = ['q', 'category', 'machine', 'stitches', 'colors', 'price', 'format'];
+const FILTER_KEYS = ['q', 'category', 'price'];
 
 export default function Designs({ free = false }) {
   const [params, setParams] = useSearchParams();
@@ -80,10 +80,6 @@ export default function Designs({ free = false }) {
             <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="e.g. BDA0001" />
           </form>
           {select('category', 'Category', categories.map((c) => [c.slug, `${c.name} (${c.count})`]))}
-          {select('machine', 'Machine', Object.entries(MACHINE_LABELS))}
-          {select('stitches', 'Stitches', STITCH_RANGES)}
-          {select('colors', 'Colours (up to)', [1, 2, 3, 4, 5, 6, 8, 10, 12].map((n) => [String(n), `${n} colour${n > 1 ? 's' : ''}`]))}
-          {select('format', 'File format', FORMATS.map((f) => [f, `.${f}`]))}
           {!free && select('price', 'Price', [['free', 'Free'], ['paid', 'Paid']])}
           {activeFilters > 0 && (
             <button type="button" className="btn btn-ghost btn-block" onClick={() => setParams({})}>

@@ -4,7 +4,7 @@ import toast from 'react-hot-toast';
 import { api, fileSize, FORMATS, imgUrl, num } from '../api';
 import { Loader } from '../components/Guards';
 
-const EMPTY_PART = { name: '', stitches: '', area: '', height: '', width: '', colors: '' };
+const EMPTY_PART = { name: '', stitches: '', area: '', colors: '' };
 
 const EMPTY = {
   name: '',
@@ -125,7 +125,7 @@ export default function DesignForm() {
         files: form.files,
         driveUrl: form.driveUrl,
         formats: form.formats,
-        parts: form.parts.filter((p) => p.name || p.stitches || p.height || p.width),
+        parts: form.parts.filter((p) => p.name || p.stitches),
       };
       const saved = isNew
         ? await api('/designs', { method: 'POST', body })
@@ -200,7 +200,7 @@ export default function DesignForm() {
               </div>
             )}
             <button type="button" className="dropzone" onClick={() => fileRef.current.click()} disabled={Boolean(uploading)}>
-              {uploading === 'files' ? 'Uploading files…' : '+ Add design files (.EMB, .DST, …)'}
+              {uploading === 'files' ? 'Uploading files…' : `+ Add design files (${FORMATS.map((f) => `.${f}`).join(', ')})`}
             </button>
             <input ref={fileRef} type="file" multiple hidden accept={FORMATS.map((f) => `.${f.toLowerCase()}`).join(',')} onChange={(e) => uploadFiles(e.target.files)} />
           </div>
@@ -235,12 +235,12 @@ export default function DesignForm() {
             <p className="muted small">One row per part (e.g. border, pallu, butti). Sizes in mm.</p>
             <div className="parts">
               <div className="part-row part-head small muted">
-                <span>Name</span><span>Stitches</span><span>Area</span><span>Height</span><span>Width</span><span>Colours</span><span />
+                <span>Name</span><span>Stitches</span><span>Area</span><span>Colours</span><span />
               </div>
               {form.parts.map((p, i) => (
                 <div key={i} className="part-row">
                   <input aria-label="Part name" placeholder="border" value={p.name} onChange={(e) => setPart(i, 'name', e.target.value)} />
-                  {['stitches', 'area', 'height', 'width', 'colors'].map((k) => (
+                  {['stitches', 'area', 'colors'].map((k) => (
                     <input key={k} aria-label={k} type="number" min="0" inputMode="numeric" value={p[k]} onChange={(e) => setPart(i, k, e.target.value)} />
                   ))}
                   <button type="button" className="link-btn danger" aria-label="Remove row" onClick={() => setForm({ ...form, parts: form.parts.filter((_, j) => j !== i) })}>✕</button>

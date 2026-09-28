@@ -110,9 +110,6 @@ export default function StoreLayout() {
           </div>
           <div>
             <strong>Help</strong>
-            <Link to="/policies#terms">Terms & conditions</Link>
-            <Link to="/policies#privacy">Privacy policy</Link>
-            <Link to="/policies#refund">Refund policy</Link>
             <Link to="/policies#contact">Contact us</Link>
           </div>
           <div>

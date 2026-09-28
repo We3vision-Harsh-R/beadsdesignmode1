@@ -9,7 +9,7 @@ import { toDesign } from '../utils/mappers.js';
 import { cleanSearch, HttpError, isUuid, pageParams, slugify, toNumber } from '../utils/helpers.js';
 
 export const MACHINE_TYPES = ['multi-head', 'single-head', 'small-machine'];
-export const FILE_FORMATS = ['EMB', 'DST', 'PES', 'JEF', 'EXP', 'VP3', 'XXX', 'HUS', 'VIP', 'SEW', 'PXF', 'ZIP'];
+export const FILE_FORMATS = ['DHP', 'ZIP', 'RAR'];
 
 const router = Router();
 
