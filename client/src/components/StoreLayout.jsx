@@ -41,15 +41,6 @@ export default function StoreLayout() {
 
   return (
     <div className="store">
-      <div className="topbar">
-        <div className="container">
-          Instant download · EMB, DST, PES, JEF files
-          {config.whatsapp && (
-            <a href={`https://wa.me/${config.whatsapp}`} target="_blank" rel="noreferrer">WhatsApp support</a>
-          )}
-        </div>
-      </div>
-
       <header className={`header ${searchOpen ? 'search-open' : ''}`}>
         <div className="container header-row">
           <Link to="/" className="brand">
