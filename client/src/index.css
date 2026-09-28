@@ -212,6 +212,9 @@ hr { border: 0; border-top: 1px solid var(--border); margin: 10px 0; }
 .cat-tile { padding: 18px; display: flex; flex-direction: column; gap: 4px; color: var(--ink); position: relative; overflow: hidden; transition: transform 0.15s, border-color 0.15s; }
 .cat-tile::before { content: ''; position: absolute; right: -18px; top: -18px; width: 64px; height: 64px; border-radius: 50%; border: 2px dashed var(--primary-soft); }
 .cat-tile:hover { text-decoration: none; transform: translateY(-2px); border-color: var(--primary); }
+.cat-tile.has-img::before { display: none; }
+.cat-tile.has-img { padding-top: 90px; }
+.cat-thumb { position: absolute; inset: 0 0 auto 0; height: 80px; background-size: cover; background-position: center; }
 
 .cta { display: flex; justify-content: space-between; align-items: center; gap: 20px; flex-wrap: wrap; padding: 28px; background: linear-gradient(120deg, var(--gold-soft), #fff 70%); border-color: #f3dfb5; }
 .cta p { margin: 0; }
@@ -451,6 +454,12 @@ hr { border: 0; border-top: 1px solid var(--border); margin: 10px 0; }
 .image-tools button:disabled { opacity: 0.3; }
 .image-add, .dropzone { border: 2px dashed var(--border); border-radius: 12px; background: var(--surface-2); cursor: pointer; color: var(--primary); font-weight: 700; }
 .image-add { aspect-ratio: 1; }
+.cat-photo-btn {
+  width: 56px; height: 56px; border-radius: 10px; border: 2px dashed var(--border); background: var(--surface-2);
+  color: var(--primary); font-weight: 700; font-size: 0.7rem; cursor: pointer; overflow: hidden; padding: 0;
+}
+.cat-photo-btn img { width: 100%; height: 100%; object-fit: cover; }
+.cat-photo-btn:hover { border-color: var(--primary); }
 .dropzone { padding: 22px; width: 100%; }
 .image-add:hover, .dropzone:hover { border-color: var(--primary); }
 .file-list { display: flex; flex-direction: column; border: 1px solid var(--border); border-radius: var(--radius-sm); }

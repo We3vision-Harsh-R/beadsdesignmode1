@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { api } from '../api';
+import CategoryTile from '../components/CategoryTile';
 import { Loader } from '../components/Guards';
 
 export default function Categories() {
@@ -17,12 +17,7 @@ export default function Categories() {
       <h1>Embroidery design categories</h1>
       <p className="muted">Pick a category to see all its designs.</p>
       <div className="cat-grid mt">
-        {list.map((c) => (
-          <Link key={c._id} to={`/designs?category=${c.slug}`} className="card cat-tile">
-            <strong>{c.name}</strong>
-            <span className="muted small">{c.count} designs</span>
-          </Link>
-        ))}
+        {list.map((c) => <CategoryTile key={c._id} category={c} />)}
       </div>
     </>
   );

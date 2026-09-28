@@ -1,12 +1,15 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
-import { api } from '../api';
+import { api, imgUrl } from '../api';
 import { Loader } from '../components/Guards';
 
 export default function Categories() {
   const [list, setList] = useState(null);
   const [name, setName] = useState('');
   const [editing, setEditing] = useState(null);
+  const [uploadingId, setUploadingId] = useState(null);
+  const fileRef = useRef(null);
+  const uploadFor = useRef(null);
 
   const load = () => api('/categories').then(setList).catch((e) => toast.error(e.message));
   useEffect(() => {
@@ -48,6 +51,30 @@ export default function Categories() {
     }
   };
 
+  const pickPhoto = (c) => {
+    uploadFor.current = c._id;
+    fileRef.current.click();
+  };
+
+  const uploadPhoto = async (file) => {
+    if (!file) return;
+    const id = uploadFor.current;
+    setUploadingId(id);
+    try {
+      const fd = new FormData();
+      fd.append('images', file);
+      const { urls } = await api('/upload', { method: 'POST', body: fd });
+      await api(`/categories/${id}`, { method: 'PUT', body: { image: urls[0] } });
+      toast.success('Photo updated');
+      load();
+    } catch (err) {
+      toast.error(err.message);
+    } finally {
+      setUploadingId(null);
+      fileRef.current.value = '';
+    }
+  };
+
   return (
     <>
       <h1>Categories</h1>
@@ -55,14 +82,20 @@ export default function Categories() {
         <input required placeholder="New category name, e.g. Kids wear" value={name} onChange={(e) => setName(e.target.value)} />
         <button className="btn">Add</button>
       </form>
+      <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/webp,image/gif" hidden onChange={(e) => uploadPhoto(e.target.files[0])} />
 
       {!list ? <Loader /> : list.length === 0 ? <p className="muted mt">No categories yet.</p> : (
         <div className="card table-wrap mt">
           <table className="table">
-            <thead><tr><th>Name</th><th>Live designs</th><th>Slug</th><th></th></tr></thead>
+            <thead><tr><th>Photo</th><th>Name</th><th>Live designs</th><th>Slug</th><th></th></tr></thead>
             <tbody>
               {list.map((c) => (
                 <tr key={c._id}>
+                  <td>
+                    <button type="button" className="cat-photo-btn" onClick={() => pickPhoto(c)} disabled={uploadingId === c._id}>
+                      {uploadingId === c._id ? '…' : c.image ? <img src={imgUrl(c.image)} alt="" /> : '+ Photo'}
+                    </button>
+                  </td>
                   <td>
                     {editing?._id === c._id ? (
                       <form onSubmit={save} className="inline-form">

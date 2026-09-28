@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api, imgUrl, STORE_NAME } from '../api';
+import CategoryTile from '../components/CategoryTile';
 import DesignCard from '../components/DesignCard';
 import { Loader } from '../components/Guards';
 import { useConfig } from '../context/ConfigContext';
@@ -83,12 +84,7 @@ export default function Home() {
             <Link to="/categories">All categories →</Link>
           </div>
           <div className="cat-grid">
-            {topCategories.map((c) => (
-              <Link key={c._id} to={`/designs?category=${c.slug}`} className="card cat-tile">
-                <strong>{c.name}</strong>
-                <span className="muted small">{c.count} designs</span>
-              </Link>
-            ))}
+            {topCategories.map((c) => <CategoryTile key={c._id} category={c} />)}
           </div>
         </section>
       )}
