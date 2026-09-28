@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { api, STORE_NAME } from '../api';
+import { api, imgUrl, STORE_NAME } from '../api';
 import DesignCard from '../components/DesignCard';
 import { Loader } from '../components/Guards';
 import { useConfig } from '../context/ConfigContext';
@@ -36,12 +36,14 @@ export default function Home() {
   }, []);
 
   const topCategories = [...categories].sort((a, b) => b.count - a.count).slice(0, 8);
+  const showcase = (latest || []).find((d) => d.featured) || (latest || [])[0];
 
   return (
     <>
       <section className="hero">
-        <div>
-          <h1>Computer embroidery designs, ready for your machine.</h1>
+        <div className="hero-copy">
+          <span className="hero-eyebrow">Machine embroidery, made simple</span>
+          <h1>Beautiful embroidery designs, ready to stitch today.</h1>
           <p className="muted">
             Saree, blouse, lehenga, dress, neck and garment designs from {STORE_NAME}. Pay once, download instantly.
           </p>
@@ -49,16 +51,28 @@ export default function Home() {
             <Link to="/designs" className="btn btn-lg">Browse designs</Link>
             <Link to="/free-designs" className="btn btn-lg btn-outline">Free designs</Link>
           </div>
+          <ul className="hero-trust">
+            <li>✓ Instant download</li>
+            <li>✓ Works on any machine</li>
+            <li>✓ Secure UPI &amp; card payment</li>
+          </ul>
         </div>
-        <div className="hero-art" aria-hidden="true">
-          <svg viewBox="0 0 200 200">
-            <circle cx="100" cy="100" r="90" className="hoop" />
-            <circle cx="100" cy="100" r="80" className="hoop-inner" />
-            {Array.from({ length: 12 }).map((_, i) => (
-              <ellipse key={i} cx="100" cy="58" rx="12" ry="30" className="petal" transform={`rotate(${i * 30} 100 100)`} />
-            ))}
-            <circle cx="100" cy="100" r="14" className="core" />
-          </svg>
+        <div className="hero-showcase" aria-hidden="true">
+          {showcase?.images?.[0] ? (
+            <div className="hero-photo-stack">
+              <img src={imgUrl(showcase.images[0])} alt="" className="hero-photo" />
+              <span className="hero-chip">SKU {showcase.sku}</span>
+            </div>
+          ) : (
+            <svg viewBox="0 0 200 200" className="hero-art">
+              <circle cx="100" cy="100" r="90" className="hoop" />
+              <circle cx="100" cy="100" r="80" className="hoop-inner" />
+              {Array.from({ length: 12 }).map((_, i) => (
+                <ellipse key={i} cx="100" cy="58" rx="12" ry="30" className="petal" transform={`rotate(${i * 30} 100 100)`} />
+              ))}
+              <circle cx="100" cy="100" r="14" className="core" />
+            </svg>
+          )}
         </div>
       </section>
 
