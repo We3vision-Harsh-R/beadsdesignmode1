@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import logo from '../assets/logo.png';
 import { STORE_NAME } from '../api';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
@@ -44,10 +45,7 @@ export default function StoreLayout() {
       <header className={`header ${searchOpen ? 'search-open' : ''}`}>
         <div className="container header-row">
           <Link to="/" className="brand">
-            <span className="brand-mark" aria-hidden="true">
-              <svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="13" /><path d="M16 5c3 5 3 17 0 22M5 16c5-3 17-3 22 0" /></svg>
-            </span>
-            <span>{STORE_NAME}</span>
+            <img src={logo} alt={STORE_NAME} className="brand-logo" />
           </Link>
 
           <form className="search" onSubmit={search} role="search">
