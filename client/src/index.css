@@ -148,6 +148,7 @@ hr { border: 0; border-top: 1px solid var(--border); margin: 10px 0; }
 .footer a { color: #cfd9fb; }
 .brand-foot { font-family: var(--serif); font-size: 1.3rem; }
 .copyright { border-top: 1px solid rgba(255, 255, 255, 0.12); margin-top: 32px; padding-top: 16px; font-size: 0.8rem; }
+.version { opacity: 0.6; }
 
 .bottom-nav { display: none; }
 

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import logo from '../assets/logo.png';
 import { STORE_NAME } from '../api';
+import { VERSION } from '../version';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { useConfig } from '../context/ConfigContext';
@@ -118,7 +119,9 @@ export default function StoreLayout() {
             <span>Digital products only. No physical shipping.</span>
           </div>
         </div>
-        <div className="container copyright">© {new Date().getFullYear()} {STORE_NAME}. All rights reserved.</div>
+        <div className="container copyright">
+          © {new Date().getFullYear()} {STORE_NAME}. All rights reserved. <span className="version">v{VERSION}</span>
+        </div>
       </footer>
 
       {/* App-style navigation on phones */}
