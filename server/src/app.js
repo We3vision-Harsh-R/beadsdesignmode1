@@ -54,9 +54,13 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api', notFound);
 
-// In production, the Express server also serves the built React app
-const clientDist = path.join(import.meta.dirname, '../../client/dist');
-if (process.env.NODE_ENV === 'production' && fs.existsSync(clientDist)) {
+// The Express server also serves the built React app. server/public is a committed copy of
+// client/dist (made by `npm run build`), so it exists even when the host skips the build step.
+const clientDist = [
+  path.join(import.meta.dirname, '../public'),
+  path.join(import.meta.dirname, '../../client/dist'),
+].find((dir) => fs.existsSync(path.join(dir, 'index.html')));
+if (clientDist) {
   app.use(express.static(clientDist, { index: false, maxAge: '7d' }));
   app.get('/{*splat}', (req, res) => res.sendFile(path.join(clientDist, 'index.html')));
 }
