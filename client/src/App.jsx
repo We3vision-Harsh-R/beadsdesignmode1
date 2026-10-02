@@ -29,6 +29,7 @@ const AdminOrders = lazy(() => import('./admin/Orders'));
 const AdminOrderDetail = lazy(() => import('./admin/OrderDetail'));
 const AdminUsers = lazy(() => import('./admin/Users'));
 const AdminUserDetail = lazy(() => import('./admin/UserDetail'));
+const AdminSettings = lazy(() => import('./admin/Settings'));
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -70,6 +71,7 @@ export default function App() {
         <Route path="admin" element={<RequireAdmin />}>
           <Route element={<AdminLayout />}>
             <Route index element={<Dashboard />} />
+            <Route path="settings" element={<AdminSettings />} />
             <Route path="designs" element={<AdminDesigns />} />
             <Route path="designs/new" element={<DesignForm />} />
             <Route path="designs/:id" element={<DesignForm />} />

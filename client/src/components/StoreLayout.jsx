@@ -1,17 +1,18 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import logo from '../assets/logo.png';
+import defaultLogo from '../assets/logo.png';
 import { STORE_NAME } from '../api';
 import { VERSION } from '../version';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
-import { useConfig } from '../context/ConfigContext';
+import { BRANDING_DEFAULTS, useConfig } from '../context/ConfigContext';
 import { BoxIcon, CartIcon, DownloadIcon, GridIcon, HomeIcon, SearchIcon, UserIcon } from './Icons';
 
 export default function StoreLayout() {
   const { user, logout } = useAuth();
   const { count } = useCart();
   const config = useConfig();
+  const branding = { ...BRANDING_DEFAULTS, ...config.branding };
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const [q, setQ] = useState('');
@@ -42,11 +43,11 @@ export default function StoreLayout() {
   };
 
   return (
-    <div className="store">
+    <div className="store" style={{ '--logo-h': `${branding.height}px`, '--logo-h-m': `${branding.mobileHeight}px` }}>
       <header className={`header ${searchOpen ? 'search-open' : ''}`}>
         <div className="container header-row">
           <Link to="/" className="brand">
-            <img src={logo} alt={STORE_NAME} className="brand-logo" />
+            <img src={branding.url || defaultLogo} alt={STORE_NAME} className="brand-logo" />
           </Link>
 
           <form className="search" onSubmit={search} role="search">

@@ -38,3 +38,9 @@ export function adminOnly(req, res, next) {
   if (req.user?.role !== 'admin') throw new HttpError(403, 'Admin access only');
   next();
 }
+
+// The owner is the one protected super admin (see profiles.is_owner)
+export function ownerOnly(req, res, next) {
+  if (!req.user?.isOwner) throw new HttpError(403, 'Only the owner can do this');
+  next();
+}

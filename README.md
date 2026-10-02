@@ -34,6 +34,10 @@ Browser (React)  ──login / sign up──▶  Supabase Auth
 - Customers: name, mobile number (asked at payment time and saved as plain text), email, orders and spend. Click a customer to see every design/package they bought. **Export customers (CSV)** and **Export purchases (CSV)** buttons for Excel
 - Packages, categories
 
+## Owner account
+
+One account is the **owner** (`profiles.is_owner = true`). The owner is an admin with full control: only the owner can make or remove other admins and change the website logo and its size (Admin → Settings). The owner account cannot be deleted, demoted or edited by anyone; database triggers block it even from the Supabase dashboard. To move ownership, drop the `protect_owner_*` triggers in the Supabase SQL editor first.
+
 ## Database (Supabase project `nlsyxkpsrbmllzggpesu`)
 
 | Table | Holds |

@@ -15,6 +15,7 @@ import adminRoutes from './routes/admin.js';
 import uploadRoutes from './routes/upload.js';
 import paymentRoutes from './routes/payments.js';
 import { getRazorpay } from './config/razorpay.js';
+import { getBranding } from './services/settings.js';
 import { notFound, errorHandler } from './middleware/error.js';
 
 const app = express();
@@ -32,8 +33,9 @@ app.use('/api/payments', paymentRoutes);
 app.use(express.json({ limit: '1mb' }));
 
 app.get('/api/health', (req, res) => res.json({ ok: true }));
-app.get('/api/config', (req, res) =>
+app.get('/api/config', async (req, res) =>
   res.json({
+    branding: await getBranding(),
     razorpayEnabled: Boolean(getRazorpay()),
     upiId: process.env.UPI_ID || '',
     upiName: process.env.UPI_NAME || '',

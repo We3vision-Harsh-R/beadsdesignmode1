@@ -3,7 +3,7 @@
 const num = (v) => (v === null || v === undefined ? 0 : Number(v));
 
 export const toUser = (p) =>
-  p && { _id: p.id, name: p.name, email: p.email, phone: p.phone, role: p.role, createdAt: p.created_at };
+  p && { _id: p.id, name: p.name, email: p.email, phone: p.phone, role: p.role, isOwner: Boolean(p.is_owner), createdAt: p.created_at };
 
 export const toCategory = (c) =>
   c && { _id: c.id, name: c.name, slug: c.slug, image: c.image ?? '', createdAt: c.created_at };

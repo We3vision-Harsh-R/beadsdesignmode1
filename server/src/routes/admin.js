@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { db, q, selectIn } from '../config/supabase.js';
-import { protect, adminOnly } from '../middleware/auth.js';
+import { protect, adminOnly, ownerOnly } from '../middleware/auth.js';
+import { getBranding, saveBranding } from '../services/settings.js';
 import { toOrder, toUser } from '../utils/mappers.js';
 import { cleanSearch, HttpError, isUuid } from '../utils/helpers.js';
 
@@ -62,16 +63,29 @@ router.get('/users', async (req, res) => {
   );
 });
 
-router.patch('/users/:id/role', async (req, res) => {
+// Only the owner decides who is an admin; the owner account itself can never be changed
+router.patch('/users/:id/role', ownerOnly, async (req, res) => {
   const { role } = req.body || {};
   if (!['user', 'admin'].includes(role)) throw new HttpError(400, 'Invalid role');
   if (!isUuid(req.params.id)) throw new HttpError(404, 'User not found');
   if (req.params.id === req.user._id) throw new HttpError(400, 'You cannot change your own role');
+  const target = await q(db.from('profiles').select('is_owner').eq('id', req.params.id).maybeSingle());
+  if (target?.is_owner) throw new HttpError(400, 'The owner account cannot be changed');
   const user = await q(db.from('profiles').update({ role }).eq('id', req.params.id).select().maybeSingle());
   if (!user) throw new HttpError(404, 'User not found');
   res.json(toUser(user));
 });
 
+
+// ---------- Site settings (owner only): logo and its size ----------
+
+router.get('/settings', ownerOnly, async (req, res) => {
+  res.json({ branding: await getBranding() });
+});
+
+router.put('/settings/branding', ownerOnly, async (req, res) => {
+  res.json({ branding: await saveBranding(req.body) });
+});
 
 // ---------- Customers: details, purchases and exports ----------
 
@@ -86,7 +100,7 @@ async function fetchAll(makeQuery, max = 20000) {
   return rows;
 }
 
-const PROFILE_FIELDS = 'id, name, email, phone, role, created_at';
+const PROFILE_FIELDS = 'id, name, email, phone, role, is_owner, created_at';
 
 // One row per design / package a customer got: paid orders, plus downloads made with a package or for free
 async function buildPurchases({ userId } = {}) {

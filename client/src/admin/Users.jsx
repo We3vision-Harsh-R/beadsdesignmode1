@@ -89,10 +89,10 @@ export default function Users() {
                   <td>{money(u.spent)}</td>
                   <td>{u.designs}</td>
                   <td className="small">{u.packages.length ? u.packages.map((p) => `${p.name} (till ${new Date(p.expiresAt).toLocaleDateString('en-IN')})`).join(', ') : '—'}</td>
-                  <td><span className={`status ${u.role === 'admin' ? 'status-confirmed' : ''}`}>{u.role}</span></td>
+                  <td><span className={`status ${u.role === 'admin' ? 'status-confirmed' : ''}`}>{u.isOwner ? 'owner' : u.role}</span></td>
                   <td className="right nowrap">
                     <Link to={`/admin/users/${u._id}`} className="link-btn">View</Link>
-                    {u._id !== me._id && (
+                    {me.isOwner && u._id !== me._id && !u.isOwner && (
                       <button className="link-btn" onClick={() => toggleRole(u)}>
                         {u.role === 'admin' ? 'Remove admin' : 'Make admin'}
                       </button>

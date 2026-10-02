@@ -26,7 +26,7 @@ export default function AdminLayout() {
           </button>
         </div>
         <nav onClick={() => setOpen(false)}>
-          {LINKS.map(([to, label, end]) => (
+          {[...LINKS, ...(user?.isOwner ? [['/admin/settings', 'Settings']] : [])].map(([to, label, end]) => (
             <NavLink key={to} to={to} end={end}>{label}</NavLink>
           ))}
           <Link to="/admin/designs/new" className="sidebar-cta">+ Upload design</Link>
