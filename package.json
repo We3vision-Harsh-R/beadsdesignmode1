@@ -2,21 +2,32 @@
   "name": "beads-design",
   "version": "1.0.0",
   "private": true,
-  "description": "Embroidery design store: React + Express + Supabase",
+  "type": "module",
+  "description": "Embroidery design store: React website (client/) served by an Express API (server/), one Node app",
+  "main": "server/src/index.js",
   "scripts": {
-    "postinstall": "npm install --prefix server --omit=dev && npm install --prefix client --include=dev",
-    "install-all": "npm install",
-    "dev": "concurrently -n api,web -c magenta,cyan \"npm run dev --prefix server\" \"npm run dev --prefix client\"",
-    "build": "npm run build --prefix client && node scripts/copy-dist.mjs",
+    "install-all": "npm install && npm install --prefix client",
+    "dev": "concurrently -n api,web -c magenta,cyan \"cross-env PORT=5000 node --watch server/src/index.js\" \"npm run dev --prefix client\"",
+    "build": "npm install --prefix client --include=dev && npm run build --prefix client",
     "start": "node server/src/index.js",
-    "create-admin": "npm run create-admin --prefix server",
-    "seed": "npm run seed --prefix server",
+    "create-admin": "node server/src/scripts/createAdmin.js",
+    "seed": "node server/src/scripts/seed.js",
     "package": "node scripts/package.mjs"
   },
-  "devDependencies": {
-    "concurrently": "^10.0.5"
+  "dependencies": {
+    "@supabase/supabase-js": "^2.116.0",
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.7.0",
+    "helmet": "^8.3.0",
+    "jose": "^6.2.12",
+    "multer": "^2.4.0",
+    "razorpay": "^2.9.8"
   },
-  "main": "server/src/index.js",
+  "devDependencies": {
+    "concurrently": "^10.0.5",
+    "cross-env": "^10.1.0"
+  },
   "engines": {
     "node": ">=22"
   }

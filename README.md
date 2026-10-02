@@ -51,7 +51,7 @@ You can browse and edit the data in the Supabase dashboard → **Table Editor**.
 
 ## Setup
 
-Requirements: Node.js 20 or newer.
+Requirements: Node.js 22 or newer.
 
 ```bash
 npm run install-all
@@ -87,7 +87,7 @@ npm run dev            # API on :5000 + website on http://localhost:5173
 
 Step-by-step Hostinger guide: [DEPLOY-HOSTINGER.md](DEPLOY-HOSTINGER.md)
 
-The Express server also serves the built website, so you deploy one Node.js app. Files and data live in Supabase, so no persistent disk is needed.
+The Express server also serves the built website from `public/`, so you deploy one Node.js app. Files and data live in Supabase, so no persistent disk is needed.
 
 ```bash
 npm run install-all
@@ -99,7 +99,7 @@ Checklist:
 - All `server/.env` values set on the host, `NODE_ENV=production`, `CLIENT_URL=https://yourdomain.com`
 - `client/.env` values present at build time
 - Supabase URL settings updated with your domain (see above)
-- Review the Policies page text (`client/src/pages/Policies.jsx`)
+- Commit the rebuilt `public/` folder with your changes (the server serves the website from it)
 - Supabase free projects pause after a week without activity; upgrade to Pro for a live store (it also adds daily backups)
 
 ## Scripts (from the project root)
@@ -107,7 +107,7 @@ Checklist:
 | Command | What it does |
 | --- | --- |
 | `npm run dev` | Start API and website together for development |
-| `npm run build` | Build the website into `client/dist` |
+| `npm run build` | Build the website into `public/` (commit it, the server serves it) |
 | `npm start` | Start the production server |
 | `npm run create-admin` | Create the admin login, or reset its password from `.env` |
 | `npm run seed` | Add the starter design categories |
